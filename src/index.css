@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+/* Theme Styles */
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+[data-theme="obsidian"] {
+  --theme-bg: #09090b;
+}
+
+[data-theme="cyberpunk"] {
+  --theme-accent: #10b981;
+}
+
+[data-theme="nordic"] {
+  --theme-accent: #6366f1;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
+}

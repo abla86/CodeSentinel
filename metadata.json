@@ -1,0 +1,6 @@
+{
+  "name": "CodeSentinel Portfolio Truth Engine",
+  "description": "Automated GitHub-grounded portfolio registry and verification sentinel with user authentication and search.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
