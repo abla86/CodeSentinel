@@ -445,36 +445,22 @@ app.get('/api/auth/rbac-roles', (req, res) => {
     }
   ];
 
-  // List pre-seeded accounts in database for testing
-  const preSeededAccounts = [
-    {
-      role: 'lead_engineer',
-      roleName: 'Lead Software Architect',
-      email: 'annebeth.andersen@gmail.com',
-      testPassword: 'SecureArchitect2026!',
-      description: 'Full administrativ tilgang og sikkerhetslag-kontroll'
-    },
-    {
-      role: 'security_auditor',
-      roleName: 'Security & Compliance Auditor',
-      email: 'auditor@codesentinel.io',
-      testPassword: 'ComplianceAudit2026!',
-      description: 'Revisjonstilgang til sikkerhetslag og sannhetsmotor'
-    },
-    {
-      role: 'guest_reviewer',
-      roleName: 'Portfolio Gjest / Rekrutterer',
-      email: 'guest@visitor.no',
-      testPassword: 'GuestVisitor2026!',
-      description: 'Standard skrivebeskyttet innsyn for rekrutterere'
-    }
-  ];
+  const configuredDemoRoles = process.env.CODE_SENTINEL_DEMO_USERS_JSON
+    ? (() => {
+        try {
+          const users = JSON.parse(process.env.CODE_SENTINEL_DEMO_USERS_JSON) as Array<{ role?: string }>;
+          return users.map((u) => u.role || "guest_reviewer");
+        } catch {
+          return [];
+        }
+      })()
+    : [];
 
   res.json({
     success: true,
     databaseSource: 'Secure Server-Authoritative Database (PBKDF2/RBAC v2.4)',
     roles,
-    preSeededAccounts
+    configuredDemoRoles
   });
 });
 
