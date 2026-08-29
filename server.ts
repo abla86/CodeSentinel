@@ -12,7 +12,9 @@ app.use(express.json());
 // SECURE SERVER-SIDE AUTHENTICATION & ROLE-BASED ACCESS CONTROL (RBAC)
 // ============================================================================
 
-const SERVER_AUTH_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+const SERVER_AUTH_SECRET = process.env.SESSION_SECRET || (process.env.NODE_ENV === "production"
+  ? (() => { throw new Error("SESSION_SECRET is required in production."); })()
+  : crypto.randomBytes(32).toString("hex"));
 
 // PBKDF2-SHA512 Password Hasher (Industry Standard with 100,000 iterations)
 function hashPasswordPbkdf2(password: string, salt: string): string {
@@ -100,46 +102,39 @@ interface ServerUserRecord {
 const SERVER_USERS: Map<string, ServerUserRecord> = new Map();
 
 function seedDefaultServerUsers() {
-  const annebethSalt = crypto.randomBytes(16).toString('hex');
-  SERVER_USERS.set('annebeth.andersen@gmail.com', {
-    id: 'usr-annebeth',
-    name: 'Annebeth Andersen',
-    email: 'annebeth.andersen@gmail.com',
-    salt: annebethSalt,
-    passwordHash: hashPasswordPbkdf2('SecureArchitect2026!', annebethSalt),
-    role: 'lead_engineer',
-    createdAt: '2026-01-15T08:00:00Z',
-    lastLoginAt: '2026-08-26T12:00:00Z',
-    avatarColor: 'from-cyan-500 to-blue-600',
-  });
+  // No credentials are committed to the repository.
+  // Demo users may be supplied through CODE_SENTINEL_DEMO_USERS_JSON when running locally.
+  const raw = process.env.CODE_SENTINEL_DEMO_USERS_JSON;
+  if (!raw) return;
 
-  const auditorSalt = crypto.randomBytes(16).toString('hex');
-  SERVER_USERS.set('auditor@codesentinel.io', {
-    id: 'usr-auditor',
-    name: 'Henrik S. (Revisor)',
-    email: 'auditor@codesentinel.io',
-    salt: auditorSalt,
-    passwordHash: hashPasswordPbkdf2('ComplianceAudit2026!', auditorSalt),
-    role: 'security_auditor',
-    createdAt: '2026-02-01T10:00:00Z',
-    lastLoginAt: '2026-08-25T14:30:00Z',
-    avatarColor: 'from-amber-500 to-orange-600',
-  });
+  try {
+    const users = JSON.parse(raw) as Array<{
+      id: string;
+      name: string;
+      email: string;
+      password: string;
+      role?: ServerUserRecord["role"];
+    }>;
 
-  const guestSalt = crypto.randomBytes(16).toString('hex');
-  SERVER_USERS.set('guest@visitor.no', {
-    id: 'usr-guest',
-    name: 'Tech Recruiter / Visitor',
-    email: 'guest@visitor.no',
-    salt: guestSalt,
-    passwordHash: hashPasswordPbkdf2('GuestVisitor2026!', guestSalt),
-    role: 'guest_reviewer',
-    createdAt: '2026-03-01T09:00:00Z',
-    lastLoginAt: '2026-08-26T11:00:00Z',
-    avatarColor: 'from-emerald-500 to-teal-600',
-  });
-}
-seedDefaultServerUsers();
+    for (const entry of users) {
+      if (!entry?.email || !entry?.password || !entry?.name || !entry?.id) continue;
+      const salt = crypto.randomBytes(16).toString("hex");
+      SERVER_USERS.set(entry.email.trim().toLowerCase(), {
+        id: entry.id,
+        name: entry.name,
+        email: entry.email.trim().toLowerCase(),
+        salt,
+        passwordHash: hashPasswordPbkdf2(entry.password, salt),
+        role: entry.role ?? "guest_reviewer",
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString(),
+        avatarColor: "from-slate-500 to-slate-700",
+      });
+    }
+  } catch {
+    throw new Error("CODE_SENTINEL_DEMO_USERS_JSON must contain valid JSON.");
+  }
+}seedDefaultServerUsers();
 
 // Health Check & Autonomous System Diagnostics API
 app.get('/api/health', (req, res) => {
@@ -258,9 +253,11 @@ app.post('/api/auth/register', (req, res) => {
     return res.status(409).json({ error: 'En konto med denne e-postadressen eksisterer allerede.' });
   }
 
-  const assignedRole = ['lead_engineer', 'security_auditor', 'guest_reviewer'].includes(role)
-    ? role
-    : 'guest_reviewer';
+  const sessionUser = (req as any).user;
+  const assignedRole: ServerUserRecord["role"] =
+    sessionUser?.role === "lead_engineer" && ['lead_engineer', 'security_auditor', 'guest_reviewer'].includes(role)
+      ? role
+      : "guest_reviewer";
 
   const salt = crypto.randomBytes(16).toString('hex');
   const passwordHash = hashPasswordPbkdf2(password, salt);
