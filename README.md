@@ -59,6 +59,8 @@ An AI-generated statement must not be presented as independently verified eviden
 
 ## Security
 
+**Security correction:** repository code contains no committed demo passwords. Local demo accounts must be injected through `CODE_SENTINEL_DEMO_USERS_JSON`; production requires an explicit `SESSION_SECRET`. Self-registration creates a guest account unless an authenticated lead engineer provisions another role.
+
 See [SECURITY.md](SECURITY.md).
 
 Security and repository-governance configuration is also documented in [docs/REPOSITORY-GOVERNANCE.md](docs/REPOSITORY-GOVERNANCE.md).
