@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0",
+  "purpose": "defensive-security-intelligence",
+  "sources": [
+    {
+      "id": "exploit-db",
+      "name": "Exploit Database",
+      "url": "https://www.exploit-db.com/",
+      "dataClasses": [
+        "exploit-record-metadata",
+        "product",
+        "version",
+        "vulnerability-class",
+        "publication-date",
+        "platform"
+      ],
+      "operationalPayloadsIncluded": false
+    }
+  ],
+  "findingLifecycle": [
+    "ingest",
+    "normalize",
+    "correlate",
+    "triage",
+    "verify",
+    "remediate",
+    "reverify",
+    "close"
+  ],
+  "allowedPublicDemonstration": [
+    "vulnerability metadata",
+    "technology mapping",
+    "risk scoring",
+    "defensive triage",
+    "remediation tracking",
+    "audit trail"
+  ],
+  "privateOnly": [
+    "operational attack logic",
+    "private War-Room source",
+    "private data",
+    "credentials",
+    "weaponized payloads"
+  ]
+}
