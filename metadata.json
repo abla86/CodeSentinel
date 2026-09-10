@@ -1,0 +1,6 @@
+{
+  "name": "CyberVault - Security & Encryption Suite",
+  "description": "Avansert klientside kryptering og cybersikkerhetsverktøy med AES-256-GCM, filkryptering, hash-analyse, steganografi og passordkontroll.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
