@@ -1,6 +1,21 @@
 # CodeSentinel GitHub App — Agent Orchestrator
 
-A production-oriented GitHub App foundation for repository automation. It receives GitHub App webhooks, validates the signature, creates short-lived installation tokens, and runs a deterministic multi-agent pipeline that can inspect a repository and report findings.
+A production-oriented GitHub App foundation for repository automation. It receives GitHub App webhooks, validates the signature, creates short-lived installation tokens, and runs a deterministic multi-agent verification pipeline against pull requests.
+
+## What is implemented
+
+- HMAC SHA-256 webhook verification.
+- GitHub App RS256 JWT creation.
+- Short-lived installation access tokens.
+- Repository and pull-request metadata retrieval.
+- Changed-file analysis with additions/deletions and source-file counts.
+- Basic changed-file secret/key heuristics.
+- Explicit separation between executable CI evidence and heuristic analysis.
+- Combined commit-status inspection when a commit SHA is available.
+- Automated PR report comments for newly opened pull requests.
+- Health endpoint for deployment probes.
+- TypeScript CI validation.
+- Docker image build validation.
 
 ## Architecture
 
@@ -25,10 +40,11 @@ Agent orchestrator
 GitHub App installation token
   │
   ▼
-Repository API / PR comments
+Repository / PR API
+  │
+  ▼
+Verification report → PR comment
 ```
-
-The implementation deliberately keeps agent decisions separate from GitHub credentials. The app uses installation tokens for autonomous repository actions, which is the GitHub-recommended model for server-to-server GitHub App automation.
 
 ## Safety model
 
@@ -37,8 +53,9 @@ The implementation deliberately keeps agent decisions separate from GitHub crede
 - GitHub App JWTs are signed with the registered private key.
 - Installation tokens are short-lived and scoped by the app installation.
 - Repository permissions should remain at the minimum required level.
-- The default pipeline is read/analyze/report; destructive repository mutation is not enabled by default.
-- AI output is labelled as analysis rather than proof of a successful executable check.
+- The default pipeline is read/analyze/report; destructive repository mutation is not enabled.
+- Secret detection is heuristic and must not be presented as equivalent to GitHub secret scanning.
+- Test and security claims are based on executable CI evidence only when such evidence is actually retrieved.
 
 ## Required environment
 
@@ -54,33 +71,46 @@ PORT=8787
 ## Local run
 
 ```bash
+npm install
+npm run github-app:check
 npm run github-app:dev
 ```
 
-The health endpoint is:
+Health endpoint:
 
 ```text
 GET /health
 ```
 
-The webhook endpoint is:
+Webhook endpoint:
 
 ```text
 POST /github/webhook
 ```
 
-## GitHub registration
+## GitHub App registration — the remaining manual step
 
-Register the app under the account that owns the repositories. Enable webhooks, set the webhook URL to the deployed `/github/webhook` endpoint, and configure a high-entropy webhook secret. Select only the permissions required by the current pipeline. GitHub documents that app permissions determine both API access and available webhook events.
+Register the app under the GitHub account that owns the repositories. Configure the webhook URL to the deployed `/github/webhook` endpoint and create a high-entropy webhook secret.
 
-For the initial read/analyze/report implementation, use the smallest repository permissions needed for metadata, contents, pull requests, issues, and actions only if the implementation actually consumes those resources. Do not grant administration, secrets, or workflow-write access unless a later feature demonstrably requires it.
+Install the app on the repositories it is allowed to inspect. For the current implementation, configure only the repository permissions actually required for metadata, pull requests, issues/comments, and any other resource that a later agent explicitly consumes. Do not grant administration, secrets, or workflow-write permissions without a demonstrated requirement.
+
+The app registration, private key, webhook secret, installation ID, and production URL are intentionally not committed to this repository.
 
 ## Deployment
 
-The service is container-ready and can be hosted on Azure App Service, Azure Container Apps, or another HTTPS-capable service. GitHub requires a reachable webhook URL for deployed webhook operation.
+The service is container-ready and can be hosted on Azure App Service, Azure Container Apps, or another HTTPS-capable service. The deployment must expose a stable HTTPS webhook endpoint.
 
-Azure deployments should prefer GitHub Actions OIDC rather than long-lived Azure credentials stored as secrets.
+For Azure deployments, prefer GitHub Actions OIDC over long-lived Azure credentials.
+
+## CI
+
+Two workflows validate this component:
+
+- `GitHub App Check` — TypeScript compilation.
+- `GitHub App Docker Build` — container image build and image inspection.
+
+A green workflow run is required before treating the implementation as CI-validated.
 
 ## Status
 
-This directory is the executable GitHub App foundation. The GitHub-side app registration and production secrets are intentionally not committed to the repository.
+The repository contains the executable GitHub App foundation and automated validation. **GitHub-side registration, installation, production secrets, and public HTTPS deployment remain intentionally manual because they require account-level configuration and credentials.**
