@@ -6,6 +6,8 @@ import { runAgentPipeline } from "./agents.js";
 const app = express();
 const port = Number(process.env.PORT ?? 8787);
 const webhookSecret = process.env.GITHUB_WEBHOOK_SECRET;
+const processedDeliveries = new Set<string>();
+const MAX_PROCESSED_DELIVERIES = 1000;
 
 if (!webhookSecret) console.warn("GITHUB_WEBHOOK_SECRET is not configured; webhook requests will be rejected.");
 
@@ -17,6 +19,22 @@ function verifySignature(rawBody: Buffer, signature: string | undefined): boolea
   const a = Buffer.from(supplied, "hex");
   const b = Buffer.from(expected, "hex");
   return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+function shouldProcess(event: string, action?: string): boolean {
+  if (event === "push") return true;
+  if (event === "pull_request") return ["opened", "reopened", "synchronize", "ready_for_review"].includes(action ?? "");
+  return false;
+}
+
+function rememberDelivery(delivery: string): boolean {
+  if (processedDeliveries.has(delivery)) return false;
+  processedDeliveries.add(delivery);
+  if (processedDeliveries.size > MAX_PROCESSED_DELIVERIES) {
+    const oldest = processedDeliveries.values().next().value;
+    if (oldest) processedDeliveries.delete(oldest);
+  }
+  return true;
 }
 
 app.get("/health", (_req, res) => res.json({
@@ -37,11 +55,17 @@ app.post("/github/webhook", express.raw({ type: "application/json", limit: "2mb"
   let payload: any;
   try { payload = JSON.parse(raw.toString("utf8")); } catch { return res.status(400).json({ error: "Invalid JSON" }); }
 
-  res.status(202).json({ accepted: true, event, delivery });
+  if (!shouldProcess(event, payload.action)) {
+    return res.status(202).json({ accepted: true, processed: false, event, action: payload.action ?? null, delivery });
+  }
+  if (!rememberDelivery(delivery)) {
+    return res.status(202).json({ accepted: true, duplicate: true, event, delivery });
+  }
+
+  res.status(202).json({ accepted: true, processed: true, event, delivery });
 
   try {
     if (!payload.installation?.id || !payload.repository?.owner?.login || !payload.repository?.name) return;
-    if (!["issues", "pull_request", "push"].includes(event)) return;
 
     const owner = payload.repository.owner.login as string;
     const repo = payload.repository.name as string;
@@ -58,7 +82,7 @@ app.post("/github/webhook", express.raw({ type: "application/json", limit: "2mb"
     };
     const results = await runAgentPipeline(context, token);
 
-    if (event === "pull_request" && payload.action === "opened" && payload.pull_request?.number) {
+    if (event === "pull_request" && ["opened", "reopened", "synchronize", "ready_for_review"].includes(payload.action) && payload.pull_request?.number) {
       const pr = await getPullRequest(owner, repo, Number(payload.pull_request.number), token);
       const summary = results
         .map((r) => `### ${r.agent}\n**Status:** ${r.status}\n${r.findings.map((f) => `- ${f}`).join("\n")}`)
