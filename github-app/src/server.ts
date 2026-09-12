@@ -13,12 +13,18 @@ function verifySignature(rawBody: Buffer, signature: string | undefined): boolea
   if (!webhookSecret || !signature?.startsWith("sha256=")) return false;
   const expected = crypto.createHmac("sha256", webhookSecret).update(rawBody).digest("hex");
   const supplied = signature.slice("sha256=".length);
+  if (!/^[a-f0-9]{64}$/i.test(supplied)) return false;
   const a = Buffer.from(supplied, "hex");
   const b = Buffer.from(expected, "hex");
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
-app.get("/health", (_req, res) => res.json({ status: "ok", service: "codesentinel-github-app", timestamp: new Date().toISOString() }));
+app.get("/health", (_req, res) => res.json({
+  status: "ok",
+  service: "codesentinel-github-app",
+  timestamp: new Date().toISOString(),
+  webhookConfigured: Boolean(webhookSecret),
+}));
 
 app.post("/github/webhook", express.raw({ type: "application/json", limit: "2mb" }), async (req, res) => {
   const raw = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body ?? "");
@@ -27,6 +33,7 @@ app.post("/github/webhook", express.raw({ type: "application/json", limit: "2mb"
   }
 
   const event = req.header("X-GitHub-Event") ?? "unknown";
+  const action = req.body ? undefined : undefined;
   const delivery = req.header("X-GitHub-Delivery") ?? "unknown";
   let payload: any;
   try { payload = JSON.parse(raw.toString("utf8")); } catch { return res.status(400).json({ error: "Invalid JSON" }); }
@@ -35,7 +42,7 @@ app.post("/github/webhook", express.raw({ type: "application/json", limit: "2mb"
 
   try {
     if (!payload.installation?.id || !payload.repository?.owner?.login || !payload.repository?.name) return;
-    if (!(["issues", "pull_request", "push"].includes(event))) return;
+    if (!["issues", "pull_request", "push"].includes(event)) return;
 
     const owner = payload.repository.owner.login as string;
     const repo = payload.repository.name as string;
@@ -46,15 +53,18 @@ app.post("/github/webhook", express.raw({ type: "application/json", limit: "2mb"
       owner,
       repo,
       event,
-      ref: payload.ref as string | undefined,
+      action: payload.action as string | undefined,
+      ref: (payload.pull_request?.head?.sha ?? payload.after ?? payload.ref) as string | undefined,
       pullRequestNumber: payload.pull_request?.number as number | undefined,
     };
-    const results = await runAgentPipeline(context);
+    const results = await runAgentPipeline(context, token);
 
     if (event === "pull_request" && payload.action === "opened" && payload.pull_request?.number) {
       const pr = await getPullRequest(owner, repo, Number(payload.pull_request.number), token);
-      const summary = results.flatMap((r) => r.findings.map((f) => `- **${r.agent}**: ${f}`)).join("\n");
-      await addIssueComment(owner, repo, Number(payload.pull_request.number), `## CodeSentinel agent report\n\nEvent: \`${event}:${payload.action}\`\n\n${summary}\n\nPR: ${pr.html_url}`, token);
+      const summary = results
+        .map((r) => `### ${r.agent}\n**Status:** ${r.status}\n${r.findings.map((f) => `- ${f}`).join("\n")}`)
+        .join("\n\n");
+      await addIssueComment(owner, repo, Number(payload.pull_request.number), `## CodeSentinel verification report\n\nEvent: \`${event}:${payload.action}\`\n\n${summary}\n\n[Open PR](${pr.html_url})`, token);
     }
   } catch (error) {
     console.error("Webhook processing failed", error);
