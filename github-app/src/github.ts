@@ -73,12 +73,37 @@ export interface PullRequestFile {
 }
 
 export async function getPullRequestFiles(owner: string, repo: string, number: number, token: string): Promise<PullRequestFile[]> {
-  const files = await githubFetch<PullRequestFile[]>(`${API}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls/${number}/files?per_page=100`, {}, token);
-  return files;
+  const files: PullRequestFile[] = [];
+  for (let page = 1; page <= 20; page += 1) {
+    const batch = await githubFetch<PullRequestFile[]>(`${API}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls/${number}/files?per_page=100&page=${page}`, {}, token);
+    files.push(...batch);
+    if (batch.length < 100) return files;
+  }
+  throw new Error("Pull request contains more than 2000 changed files; refusing to truncate analysis.");
 }
 
 export async function getCommitStatusSummary(owner: string, repo: string, ref: string, token: string) {
   return githubFetch<{ state: string; total_count: number }>(`${API}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits/${encodeURIComponent(ref)}/status`, {}, token);
+}
+
+export interface CheckRunSummary {
+  total_count: number;
+  check_runs: Array<{
+    name: string;
+    status: string;
+    conclusion: string | null;
+    html_url: string | null;
+  }>;
+}
+
+export async function getCheckRunSummary(owner: string, repo: string, ref: string, token: string): Promise<CheckRunSummary> {
+  const all: CheckRunSummary["check_runs"] = [];
+  for (let page = 1; page <= 10; page += 1) {
+    const batch = await githubFetch<CheckRunSummary>(`${API}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits/${encodeURIComponent(ref)}/check-runs?per_page=100&page=${page}`, {}, token);
+    all.push(...batch.check_runs);
+    if (batch.check_runs.length < 100) return { total_count: all.length, check_runs: all };
+  }
+  return { total_count: all.length, check_runs: all };
 }
 
 export async function addIssueComment(owner: string, repo: string, issueNumber: number, body: string, token: string) {
