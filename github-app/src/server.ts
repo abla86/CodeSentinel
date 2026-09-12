@@ -33,7 +33,6 @@ app.post("/github/webhook", express.raw({ type: "application/json", limit: "2mb"
   }
 
   const event = req.header("X-GitHub-Event") ?? "unknown";
-  const action = req.body ? undefined : undefined;
   const delivery = req.header("X-GitHub-Delivery") ?? "unknown";
   let payload: any;
   try { payload = JSON.parse(raw.toString("utf8")); } catch { return res.status(400).json({ error: "Invalid JSON" }); }
