@@ -7,7 +7,11 @@
     "github-app:dev": "tsx src/server.ts",
     "github-app:check": "tsc --noEmit -p tsconfig.json"
   },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
   "devDependencies": {
+    "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2"
