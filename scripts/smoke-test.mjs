@@ -1,13 +1,12 @@
 import { spawn } from "node:child_process";
 
-const port = 3317;
+const port = 3000;
 const baseUrl = `http://127.0.0.1:${port}`;
 
 const server = spawn(process.execPath, ["dist/server.cjs"], {
   env: {
     ...process.env,
     NODE_ENV: "production",
-    PORT: String(port),
     SESSION_SECRET: "codesentinel-smoke-test-secret",
   },
   stdio: ["ignore", "pipe", "pipe"],
