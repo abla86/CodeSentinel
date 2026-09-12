@@ -56,11 +56,29 @@ export async function createInstallationToken(installationId: number): Promise<s
 }
 
 export async function getRepository(owner: string, repo: string, token: string) {
-  return githubFetch<{ full_name: string; default_branch: string; private: boolean }>(`${API}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`, {}, token);
+  return githubFetch<{ full_name: string; default_branch: string; private: boolean; html_url: string }>(`${API}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`, {}, token);
 }
 
 export async function getPullRequest(owner: string, repo: string, number: number, token: string) {
-  return githubFetch<{ number: number; title: string; body: string | null; head: { ref: string }; base: { ref: string }; html_url: string }>(`${API}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls/${number}`, {}, token);
+  return githubFetch<{ number: number; title: string; body: string | null; head: { ref: string; sha: string }; base: { ref: string }; html_url: string; draft: boolean; mergeable: boolean | null }>(`${API}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls/${number}`, {}, token);
+}
+
+export interface PullRequestFile {
+  filename: string;
+  status: string;
+  additions: number;
+  deletions: number;
+  changes: number;
+  patch?: string;
+}
+
+export async function getPullRequestFiles(owner: string, repo: string, number: number, token: string): Promise<PullRequestFile[]> {
+  const files = await githubFetch<PullRequestFile[]>(`${API}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls/${number}/files?per_page=100`, {}, token);
+  return files;
+}
+
+export async function getCommitStatusSummary(owner: string, repo: string, ref: string, token: string) {
+  return githubFetch<{ state: string; total_count: number }>(`${API}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits/${encodeURIComponent(ref)}/status`, {}, token);
 }
 
 export async function addIssueComment(owner: string, repo: string, issueNumber: number, body: string, token: string) {
