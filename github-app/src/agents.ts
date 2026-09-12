@@ -55,24 +55,23 @@ export async function runAgentPipeline(context: AgentContext, token: string): Pr
       testFilesChanged ? "Test-related files are included in the change set." : "No test files detected in the change set.",
       "Executable test outcomes come from CI/check runs; this agent does not infer passing tests from source changes.",
     ];
-    add("test-analyst", testFindings);
 
     if (context.ref) {
-      const findings: string[] = [];
       try {
         const checks = await getCheckRunSummary(context.owner, context.repo, context.ref, token);
         const completed = checks.check_runs.filter((check) => check.status === "completed");
         const failed = completed.filter((check) => check.conclusion && ["failure", "timed_out", "cancelled", "action_required"].includes(check.conclusion));
         const pending = checks.check_runs.filter((check) => check.status !== "completed");
-        findings.push(`GitHub Checks: ${checks.total_count} check run(s).`);
-        findings.push(completed.length ? `${completed.length} completed check run(s).` : "No completed check runs reported.");
-        findings.push(failed.length ? `Failed/problematic checks: ${failed.map((check) => `${check.name} (${check.conclusion})`).join(", ")}.` : "No failed/problematic completed checks detected.");
-        if (pending.length) findings.push(`Pending checks: ${pending.map((check) => check.name).join(", ")}.`);
+        testFindings.push(`GitHub Checks: ${checks.total_count} check run(s).`);
+        testFindings.push(completed.length ? `${completed.length} completed check run(s).` : "No completed check runs reported.");
+        testFindings.push(failed.length ? `Failed/problematic checks: ${failed.map((check) => `${check.name} (${check.conclusion})`).join(", ")}.` : "No failed/problematic completed checks detected.");
+        if (pending.length) testFindings.push(`Pending checks: ${pending.map((check) => check.name).join(", ")}.`);
       } catch (error) {
-        findings.push(`GitHub Checks API unavailable: ${error instanceof Error ? error.message : "unknown error"}.`);
-        findings.push("Configure the GitHub App with Checks: Read permission to provide authoritative check-run evidence.");
+        testFindings.push(`GitHub Checks API unavailable: ${error instanceof Error ? error.message : "unknown error"}.`);
+        testFindings.push("Configure the GitHub App with Checks: Read permission to provide authoritative check-run evidence.");
       }
-      add("test-analyst", findings);
+
+      add("test-analyst", testFindings);
 
       const status = await getCommitStatusSummary(context.owner, context.repo, context.ref, token);
       add("release-analyst", [
@@ -82,6 +81,7 @@ export async function runAgentPipeline(context: AgentContext, token: string): Pr
         "Release readiness should be based on current GitHub Checks/CI evidence rather than documentation claims.",
       ]);
     } else {
+      add("test-analyst", testFindings);
       add("release-analyst", ["No commit SHA/ref supplied; release readiness cannot be established from status checks."], "skipped");
     }
   } else {
