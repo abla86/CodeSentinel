@@ -203,7 +203,7 @@ export async function loginUser(
         ...data.user,
         sessionToken: data.token,
       };
-      return { success: true, user: cachedCurrentUser, token: data.token };
+      return { success: true, user: cachedCurrentUser ?? undefined, token: data.token };
     }
 
     return { success: false, error: data.error || 'Feil ved innlogging' };
@@ -243,7 +243,7 @@ export async function registerUser(
         ...data.user,
         sessionToken: data.token,
       };
-      return { success: true, user: cachedCurrentUser, token: data.token };
+      return { success: true, user: cachedCurrentUser ?? undefined, token: data.token };
     }
 
     return { success: false, error: data.error || 'Kunne ikke opprette konto' };
@@ -288,7 +288,7 @@ export async function updateUserProfile(
         ...data.user,
         sessionToken: data.token || token,
       };
-      return { success: true, user: cachedCurrentUser };
+      return { success: true, user: cachedCurrentUser ?? undefined };
     }
 
     return { success: false, error: data.error || 'Oppdatering feilet' };

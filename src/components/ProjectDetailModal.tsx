@@ -7,7 +7,7 @@ import {
   Copy,
   ExternalLink,
   FileCode2,
-  Github,
+  GitBranch,
   Globe,
   Layers,
   RefreshCw,
@@ -135,7 +135,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                 )}
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-400">
-                <span className="flex items-center gap-1 font-mono text-cyan-400"><Github className="h-3.5 w-3.5" />{project.githubRepo}</span>
+                <span className="flex items-center gap-1 font-mono text-cyan-400"><GitBranch className="h-3.5 w-3.5" />{project.githubRepo}</span>
                 <span>•</span>
                 <span>{project.category}</span>
                 {liveRepo?.license && <><span>•</span><span>{liveRepo.license}</span></>}
@@ -248,7 +248,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
 
           {activeTab === 'readme' && (
             <div className="rounded-xl border border-slate-800 bg-slate-950 p-4">
-              <div className="mb-3 flex items-center gap-2 text-xs text-slate-400"><Github className="h-4 w-4" /> Live GitHub README</div>
+              <div className="mb-3 flex items-center gap-2 text-xs text-slate-400"><GitBranch className="h-4 w-4" /> Live GitHub README</div>
               <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-relaxed text-slate-300">{liveRepo?.readmeContent || 'Ingen README mottatt.'}</pre>
             </div>
           )}

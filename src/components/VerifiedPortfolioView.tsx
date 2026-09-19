@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { RegistryProject, VerificationResult } from '../types';
-import { ShieldCheck, Github, ExternalLink, Activity, Sparkles, CheckCircle2, AlertTriangle, ArrowUpRight, Cpu, Layers, Copy, Check, Radio, Globe, Terminal } from 'lucide-react';
+import { ShieldCheck, GitBranch, ExternalLink, Activity, Sparkles, CheckCircle2, AlertTriangle, ArrowUpRight, Cpu, Layers, Copy, Check, Radio, Globe, Terminal } from 'lucide-react';
 
 interface VerifiedPortfolioViewProps {
   projects: RegistryProject[];
@@ -237,7 +237,7 @@ export const VerifiedPortfolioView: React.FC<VerifiedPortfolioViewProps> = ({
                 title="Inspiser repository og sannhetskilde"
               >
                 <span>Kilde</span>
-                <Github className="w-3 h-3 text-cyan-400 group-hover:text-white" />
+                <GitBranch className="w-3 h-3 text-cyan-400 group-hover:text-white" />
               </button>
             </div>
           </div>
