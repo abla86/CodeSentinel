@@ -30,7 +30,7 @@ External intelligence is evidence for triage, not proof that a target is vulnera
 
 ## War-Room boundary
 
-**My-own-war-room remains private.** CodeSentinel may use sanitized concepts and contracts derived from the private system, such as:
+**My-own-war-room** was merged into `wpww-warroom` (`archive/My-own-war-room`). CodeSentinel may use sanitized concepts and contracts derived from that system, such as:
 
 - threat/finding lifecycle
 - defensive triage
