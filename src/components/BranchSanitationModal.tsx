@@ -46,7 +46,7 @@ interface BranchSanitationModalProps {
 const SIMULATED_BRANCHES: BranchInfo[] = [
   // evidence-appraisal-tool branches (from Anne's PowerShell log)
   {
-    repo: 'abla86/evidence-appraisal-tool',
+    repo: 'abla86/complete-evidence-appraisal-tool',
     branch: 'launch-hardening-1',
     sha: '75e2561ba0ef08f29818e2fe56c85a970e363735',
     mainSha: '2063f241f459a6ffe85b1105a48d50e4c79ba196',
@@ -59,7 +59,7 @@ const SIMULATED_BRANCHES: BranchInfo[] = [
     lastCommitMessage: 'chore(hardening): finalize amstar 2 validation rules'
   },
   {
-    repo: 'abla86/evidence-appraisal-tool',
+    repo: 'abla86/complete-evidence-appraisal-tool',
     branch: 'launch-hardening-2',
     sha: '75e2561ba0ef08f29818e2fe56c85a970e363735',
     mainSha: '2063f241f459a6ffe85b1105a48d50e4c79ba196',
@@ -72,7 +72,7 @@ const SIMULATED_BRANCHES: BranchInfo[] = [
     lastCommitMessage: 'chore(hardening): finalize amstar 2 validation rules'
   },
   {
-    repo: 'abla86/evidence-appraisal-tool',
+    repo: 'abla86/complete-evidence-appraisal-tool',
     branch: 'launch-hardening-3',
     sha: '75e2561ba0ef08f29818e2fe56c85a970e363735',
     mainSha: '2063f241f459a6ffe85b1105a48d50e4c79ba196',
