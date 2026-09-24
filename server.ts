@@ -43,9 +43,11 @@ function authRateLimited(req: express.Request): boolean {
 // SECURE SERVER-SIDE AUTHENTICATION & ROLE-BASED ACCESS CONTROL (RBAC)
 // ============================================================================
 
-const SERVER_AUTH_SECRET = process.env.SESSION_SECRET || (process.env.NODE_ENV === "production"
-  ? (() => { throw new Error("SESSION_SECRET is required in production."); })()
-  : crypto.randomBytes(32).toString("hex"));
+const configuredSessionSecret = process.env.SESSION_SECRET || "";
+if (isProduction && configuredSessionSecret.length < 32) {
+  throw new Error("SESSION_SECRET is required in production and must be at least 32 characters.");
+}
+const SERVER_AUTH_SECRET = configuredSessionSecret || crypto.randomBytes(32).toString("hex");
 
 // PBKDF2-SHA512 Password Hasher (Industry Standard with 100,000 iterations)
 function hashPasswordPbkdf2(password: string, salt: string): string {
@@ -614,8 +616,31 @@ function parseHtmlPayload(html: string) {
 app.post('/api/sentinel/inspect-url', async (req, res) => {
   const { url, expectedTitle, expectedProjectName } = req.body;
 
-  if (!url || typeof url !== 'string') {
+  if (!url || typeof url !== 'string' || url.length > 2048) {
     return res.status(400).json({ error: 'Missing or invalid url parameter' });
+  }
+
+  let targetUrl: URL;
+  try {
+    targetUrl = new URL(url);
+  } catch {
+    return res.status(400).json({ error: 'Invalid URL.' });
+  }
+
+  if (!['http:', 'https:'].includes(targetUrl.protocol)) {
+    return res.status(400).json({ error: 'Only HTTP(S) URLs are allowed.' });
+  }
+
+  const blockedHostnames = new Set([
+    'localhost',
+    'localhost.localdomain',
+    'ip6-localhost',
+    'ip6-loopback',
+    'metadata.google.internal'
+  ]);
+  const hostname = targetUrl.hostname.toLowerCase().replace(/\.$/, '');
+  if (blockedHostnames.has(hostname) || hostname.endsWith('.localhost') || hostname.endsWith('.local')) {
+    return res.status(400).json({ error: 'Local or metadata targets are not allowed.' });
   }
 
   const startTime = Date.now();
@@ -727,14 +752,14 @@ app.post('/api/sentinel/inspect-url', async (req, res) => {
       httpStatus: 0,
       latencyMs,
       verdict: 'unreachable',
-      error: err.name === 'AbortError' ? 'Tilkobling tidsavbrutt etter 6000ms' : err.message || 'Nettverksfeil'
+      error: err.name === 'AbortError' ? 'Tilkobling tidsavbrutt etter 6000ms' : 'Kunne ikke hente mål-URL.'
     });
   }
 });
 
 // 2. Live GitHub API Proxy (Handles fetching real repo data with token or public rate-limit protection)
 app.post('/api/sentinel/github-repo', async (req, res) => {
-  const { githubRepo, token } = req.body;
+  const { githubRepo } = req.body;
 
   if (!githubRepo || typeof githubRepo !== 'string') {
     return res.status(400).json({ error: 'Missing githubRepo parameter (owner/repo)' });
@@ -745,7 +770,8 @@ app.post('/api/sentinel/github-repo', async (req, res) => {
     return res.status(400).json({ error: 'Invalid repository format. Must be "owner/repo"' });
   }
 
-  const githubToken = token || process.env.GITHUB_TOKEN || '';
+  // GitHub credentials are server-side only. Never accept tokens from browser request bodies.
+  const githubToken = process.env.GITHUB_TOKEN || '';
   const headers: Record<string, string> = {
     'Accept': 'application/vnd.github.v3+json',
     'User-Agent': 'CodeSentinel-Truth-Engine-2.0'
