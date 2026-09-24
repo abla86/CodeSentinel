@@ -4,10 +4,19 @@ import crypto from "crypto";
 import { createServer as createViteServer } from "vite";
 
 const app = express();
-const PORT = 3000;
+const PORT = Number.parseInt(process.env.PORT || "3000", 10);
+const HOST = process.env.HOST || "127.0.0.1";
+const isProduction = process.env.NODE_ENV === "production";
+
+if (isProduction && HOST !== "127.0.0.1" && HOST !== "::1" && HOST !== "localhost") {
+  const apiKey = process.env.APP_API_KEY || "";
+  if (apiKey.length < 32) {
+    throw new Error("APP_API_KEY is required (>=32 characters) when CodeSentinel is exposed beyond localhost.");
+  }
+}
 
 app.disable("x-powered-by");
-app.set("trust proxy", 1);
+app.set("trust proxy", process.env.TRUST_PROXY === "true" ? 1 : false);
 app.use(express.json({
   limit: "256kb",
   verify: (req, _res, buf) => {
@@ -19,8 +28,7 @@ app.use(express.json({
 
 const authAttempts = new Map<string, { count: number; resetAt: number }>();
 function authRateLimited(req: express.Request): boolean {
-  const forwarded = req.headers["x-forwarded-for"];
-  const key = (typeof forwarded === "string" ? forwarded.split(",")[0].trim() : req.ip) || "unknown";
+  const key = req.ip || req.socket.remoteAddress || "unknown";
   const now = Date.now();
   const current = authAttempts.get(key);
   if (!current || current.resetAt <= now) {
@@ -159,6 +167,22 @@ function seedDefaultServerUsers() {
   }
 }seedDefaultServerUsers();
 
+
+// Remote exposure guard: browser/API traffic must authenticate when the server is not host-local.
+if (isProduction && HOST !== "127.0.0.1" && HOST !== "::1" && HOST !== "localhost") {
+  app.use("/api", (req, res, next) => {
+    if (req.path === "/health" || req.path === "/auth/login") return next();
+    const supplied = req.headers["x-api-key"];
+    if (typeof supplied !== "string") return res.status(401).json({ error: "API-nøkkel kreves." });
+    const expected = Buffer.from(process.env.APP_API_KEY || "", "utf8");
+    const actual = Buffer.from(supplied, "utf8");
+    if (actual.length !== expected.length || !crypto.timingSafeEqual(actual, expected)) {
+      return res.status(401).json({ error: "Ugyldig API-nøkkel." });
+    }
+    next();
+  });
+}
+
 // Health Check & Autonomous System Diagnostics API
 app.get('/api/health', (req, res) => {
   res.json({
@@ -210,6 +234,7 @@ function authenticateServerSession(req: express.Request, res: express.Response, 
 
 // 1. Server Route: User Login with Salted PBKDF2 Verification & Signed Token Issuance
 app.post('/api/auth/login', (req, res) => {
+  if (authRateLimited(req)) return res.status(429).json({ error: "For mange innloggingsforsøk. Prøv igjen senere." });
   const { email, password } = req.body;
 
   if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
@@ -256,7 +281,7 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 // 2. Server Route: Secure Registration with Server-side PBKDF2 Hashing
-app.post('/api/auth/register', (req, res) => {
+app.post('/api/auth/register', authenticateServerSession, (req, res) => {
   const { name, email, password, role } = req.body;
 
   if (!name || !email || !password) {
@@ -268,8 +293,8 @@ app.post('/api/auth/register', (req, res) => {
     return res.status(400).json({ error: 'Vennligst oppgi en gyldig e-postadresse.' });
   }
 
-  if (password.length < 8) {
-    return res.status(400).json({ error: 'Passordet må bestå av minst 8 tegn for tilstrekkelig entropi.' });
+  if (password.length < 12) {
+    return res.status(400).json({ error: 'Passordet må bestå av minst 12 tegn for tilstrekkelig entropi.' });
   }
 
   if (SERVER_USERS.has(normalizedEmail)) {
@@ -377,8 +402,8 @@ app.post('/api/auth/update-profile', authenticateServerSession, (req, res) => {
   }
 
   if (newPassword && typeof newPassword === 'string') {
-    if (newPassword.length < 8) {
-      return res.status(400).json({ error: 'Nytt passord må være minst 8 tegn.' });
+    if (newPassword.length < 12) {
+      return res.status(400).json({ error: 'Nytt passord må være minst 12 tegn.' });
     }
     user.salt = crypto.randomBytes(16).toString('hex');
     user.passwordHash = hashPasswordPbkdf2(newPassword, user.salt);
@@ -879,8 +904,8 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`CodeSentinel Server running on http://0.0.0.0:${PORT}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`CodeSentinel Server running on http://${HOST}:${PORT}`);
   });
 }
 
