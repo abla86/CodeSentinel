@@ -7,7 +7,7 @@ const server = spawn(process.execPath, ["dist/server.cjs"], {
   env: {
     ...process.env,
     NODE_ENV: "production",
-    SESSION_SECRET: "codesentinel-smoke-test-secret",
+    SESSION_SECRET: "codesentinel-smoke-test-secret-0123456789abcdef",
   },
   stdio: ["ignore", "pipe", "pipe"],
 });
