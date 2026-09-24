@@ -6,7 +6,23 @@ import { createServer as createViteServer } from "vite";
 const app = express();
 const PORT = 3000;
 
-app.use(express.json());
+app.disable("x-powered-by");
+app.set("trust proxy", 1);
+app.use(express.json({ limit: "256kb" }));
+
+const authAttempts = new Map<string, { count: number; resetAt: number }>();
+function authRateLimited(req: express.Request): boolean {
+  const forwarded = req.headers["x-forwarded-for"];
+  const key = (typeof forwarded === "string" ? forwarded.split(",")[0].trim() : req.ip) || "unknown";
+  const now = Date.now();
+  const current = authAttempts.get(key);
+  if (!current || current.resetAt <= now) {
+    authAttempts.set(key, { count: 1, resetAt: now + 15 * 60 * 1000 });
+    return false;
+  }
+  current.count += 1;
+  return current.count > 20;
+}
 
 // ============================================================================
 // SECURE SERVER-SIDE AUTHENTICATION & ROLE-BASED ACCESS CONTROL (RBAC)
