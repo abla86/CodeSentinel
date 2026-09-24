@@ -172,6 +172,7 @@ function seedDefaultServerUsers() {
 if (isProduction && HOST !== "127.0.0.1" && HOST !== "::1" && HOST !== "localhost") {
   app.use("/api", (req, res, next) => {
     if (req.path === "/health" || req.path === "/auth/login") return next();
+    if (req.path === "/auth/register") return res.status(403).json({ error: "Registrering er deaktivert ved ekstern produksjonseksponering." });
     const supplied = req.headers["x-api-key"];
     if (typeof supplied !== "string") return res.status(401).json({ error: "API-nøkkel kreves." });
     const expected = Buffer.from(process.env.APP_API_KEY || "", "utf8");
@@ -281,7 +282,7 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 // 2. Server Route: Secure Registration with Server-side PBKDF2 Hashing
-app.post('/api/auth/register', authenticateServerSession, (req, res) => {
+app.post('/api/auth/register', (req, res) => {
   const { name, email, password, role } = req.body;
 
   if (!name || !email || !password) {
