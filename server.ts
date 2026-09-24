@@ -8,7 +8,14 @@ const PORT = 3000;
 
 app.disable("x-powered-by");
 app.set("trust proxy", 1);
-app.use(express.json({ limit: "256kb" }));
+app.use(express.json({
+  limit: "256kb",
+  verify: (req, _res, buf) => {
+    if (req.originalUrl === "/github/webhook") {
+      (req as express.Request & { rawBody?: Buffer }).rawBody = Buffer.from(buf);
+    }
+  }
+}));
 
 const authAttempts = new Map<string, { count: number; resetAt: number }>();
 function authRateLimited(req: express.Request): boolean {
@@ -364,7 +371,7 @@ app.post('/api/auth/update-profile', authenticateServerSession, (req, res) => {
 
   if (role && ['lead_engineer', 'security_auditor', 'guest_reviewer'].includes(role)) {
     // Only current lead_engineer can modify roles
-    if (sessionUser.role === 'lead_engineer' || user.id === sessionUser.userId) {
+    if (sessionUser.role === 'lead_engineer') {
       user.role = role;
     }
   }
