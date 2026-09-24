@@ -257,10 +257,16 @@ export function getStoredApprovalTokens(): SecurityApprovalToken[] {
 
 export function validateApprovalToken(tokenString: string, action: string): { isValid: boolean; reason?: string } {
   const tokens = getStoredApprovalTokens();
-  const found = tokens.find(t => t.token.trim().toUpperCase() === tokenString.trim().toUpperCase());
+  const normalizedToken = tokenString.trim().toUpperCase();
+  const normalizedAction = action.trim();
+  const found = tokens.find(t => t.token.trim().toUpperCase() === normalizedToken);
 
   if (!found) {
     return { isValid: false, reason: 'Ugyldig godkjenningstoken. Tokenet finnes ikke i autorisasjonsregisteret.' };
+  }
+
+  if (found.action !== normalizedAction) {
+    return { isValid: false, reason: 'Godkjenningstokenet er ikke utstedt for denne handlingen.' };
   }
 
   if (found.isUsed) {
