@@ -211,9 +211,18 @@ export function calculateSha256Sync(content: string): string {
 }
 
 // 1. Write-Isolation: Approval Token Generator & Validator
+function generateSecureToken(): string {
+  const bytes = new Uint8Array(32);
+  if (typeof globalThis.crypto?.getRandomValues === 'function') {
+    globalThis.crypto.getRandomValues(bytes);
+    return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('').toUpperCase();
+  }
+
+  throw new Error('Secure random number generation is unavailable; approval token generation is blocked.');
+}
+
 export function generateApprovalToken(issuedBy: string, action: string): SecurityApprovalToken {
-  const randomSegment = Math.random().toString(36).substring(2, 8).toUpperCase();
-  const token = `CS-AUTH-${Math.floor(1000 + Math.random() * 9000)}-${randomSegment}`;
+  const token = `CS-AUTH-${generateSecureToken()}`;
   const now = new Date();
   const expiresAt = new Date(now.getTime() + (DEFAULT_SECURITY_POLICY.tokenTtlSeconds * 1000));
 
