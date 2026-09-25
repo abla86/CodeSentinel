@@ -20,7 +20,7 @@ app.set("trust proxy", process.env.TRUST_PROXY === "true" ? 1 : false);
 app.use(express.json({
   limit: "256kb",
   verify: (req, _res, buf) => {
-    if (req.originalUrl === "/github/webhook") {
+    if ((req as express.Request).originalUrl === "/github/webhook") {
       (req as express.Request & { rawBody?: Buffer }).rawBody = Buffer.from(buf);
     }
   }
