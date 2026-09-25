@@ -1,6 +1,8 @@
 import express from "express";
 import path from "path";
 import crypto from "crypto";
+import dns from "dns/promises";
+import net from "net";
 import { createServer as createViteServer } from "vite";
 
 const app = express();
@@ -643,6 +645,35 @@ app.post('/api/sentinel/inspect-url', async (req, res) => {
     return res.status(400).json({ error: 'Local or metadata targets are not allowed.' });
   }
 
+  const isPrivateAddress = (address: string): boolean => {
+    const normalized = address.toLowerCase();
+    if (net.isIPv4(address)) {
+      const [a, b] = address.split('.').map(Number);
+      return a === 10 || a === 127 || (a === 169 && b === 254)
+        || (a === 172 && b >= 16 && b <= 31)
+        || (a === 192 && b === 168);
+    }
+    if (net.isIPv6(address)) {
+      return normalized === '::1'
+        || normalized.startsWith('fc')
+        || normalized.startsWith('fd')
+        || normalized.startsWith('fe8')
+        || normalized.startsWith('fe9')
+        || normalized.startsWith('fea')
+        || normalized.startsWith('feb');
+    }
+    return true;
+  };
+
+  try {
+    const resolved = await dns.lookup(hostname, { all: true });
+    if (resolved.length === 0 || resolved.some((entry) => isPrivateAddress(entry.address))) {
+      return res.status(400).json({ error: 'Private or local network targets are not allowed.' });
+    }
+  } catch {
+    return res.status(400).json({ error: 'Target hostname could not be resolved.' });
+  }
+
   const startTime = Date.now();
   try {
     const controller = new AbortController();
@@ -673,7 +704,14 @@ app.post('/api/sentinel/inspect-url', async (req, res) => {
       });
     }
 
+    const contentLength = Number(response.headers.get('content-length') || '0');
+    if (contentLength > 2 * 1024 * 1024) {
+      return res.status(413).json({ success: false, url, httpStatus, latencyMs, contentType, verdict: 'unreachable', error: 'Response body too large.' });
+    }
     const htmlText = await response.text();
+    if (Buffer.byteLength(htmlText, 'utf8') > 2 * 1024 * 1024) {
+      return res.status(413).json({ success: false, url, httpStatus, latencyMs, contentType, verdict: 'unreachable', error: 'Response body too large.' });
+    }
     const parsed = parseHtmlPayload(htmlText);
 
     // Analyze Application Identity Match
@@ -765,10 +803,11 @@ app.post('/api/sentinel/github-repo', async (req, res) => {
     return res.status(400).json({ error: 'Missing githubRepo parameter (owner/repo)' });
   }
 
-  const [owner, repo] = githubRepo.split('/');
-  if (!owner || !repo) {
+  const match = githubRepo.trim().match(/^([A-Za-z0-9_.-]{1,100})\/([A-Za-z0-9_.-]{1,100})$/);
+  if (!match) {
     return res.status(400).json({ error: 'Invalid repository format. Must be "owner/repo"' });
   }
+  const [, owner, repo] = match;
 
   // GitHub credentials are server-side only. Never accept tokens from browser request bodies.
   const githubToken = process.env.GITHUB_TOKEN || '';
