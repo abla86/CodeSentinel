@@ -704,7 +704,14 @@ app.post('/api/sentinel/inspect-url', async (req, res) => {
       });
     }
 
+    const contentLength = Number(response.headers.get('content-length') || '0');
+    if (contentLength > 2 * 1024 * 1024) {
+      return res.status(413).json({ success: false, url, httpStatus, latencyMs, contentType, verdict: 'unreachable', error: 'Response body too large.' });
+    }
     const htmlText = await response.text();
+    if (Buffer.byteLength(htmlText, 'utf8') > 2 * 1024 * 1024) {
+      return res.status(413).json({ success: false, url, httpStatus, latencyMs, contentType, verdict: 'unreachable', error: 'Response body too large.' });
+    }
     const parsed = parseHtmlPayload(htmlText);
 
     // Analyze Application Identity Match
@@ -796,10 +803,11 @@ app.post('/api/sentinel/github-repo', async (req, res) => {
     return res.status(400).json({ error: 'Missing githubRepo parameter (owner/repo)' });
   }
 
-  const [owner, repo] = githubRepo.split('/');
-  if (!owner || !repo) {
+  const match = githubRepo.trim().match(/^([A-Za-z0-9_.-]{1,100})\/([A-Za-z0-9_.-]{1,100})$/);
+  if (!match) {
     return res.status(400).json({ error: 'Invalid repository format. Must be "owner/repo"' });
   }
+  const [, owner, repo] = match;
 
   // GitHub credentials are server-side only. Never accept tokens from browser request bodies.
   const githubToken = process.env.GITHUB_TOKEN || '';
