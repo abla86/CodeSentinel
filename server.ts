@@ -647,31 +647,88 @@ app.post('/api/sentinel/inspect-url', async (req, res) => {
 
   const isPrivateAddress = (address: string): boolean => {
     const normalized = address.toLowerCase();
+
+    // IPv4 private, loopback, link-local, benchmarking, shared-address,
+    // documentation and non-global ranges that must never be SSRF targets.
     if (net.isIPv4(address)) {
-      const [a, b] = address.split('.').map(Number);
-      return a === 10 || a === 127 || (a === 169 && b === 254)
-        || (a === 172 && b >= 16 && b <= 31)
-        || (a === 192 && b === 168);
+      const [a, b, c] = address.split('.').map(Number);
+      return (
+        a === 0 ||
+        a === 10 ||
+        a === 127 ||
+        (a === 100 && b >= 64 && b <= 127) ||
+        (a === 169 && b === 254) ||
+        (a === 172 && b >= 16 && b <= 31) ||
+        (a === 192 && (b === 0 || b === 168 || (b === 88 && c === 99))) ||
+        (a === 198 && b >= 18 && b <= 19) ||
+        a >= 224
+      );
     }
+
     if (net.isIPv6(address)) {
-      return normalized === '::1'
-        || normalized.startsWith('fc')
-        || normalized.startsWith('fd')
-        || normalized.startsWith('fe8')
-        || normalized.startsWith('fe9')
-        || normalized.startsWith('fea')
-        || normalized.startsWith('feb');
+      // Handle IPv4-mapped IPv6 addresses such as ::ffff:127.0.0.1.
+      const mapped = normalized.match(/^::ffff:(\\d+\\.\\d+\\.\\d+\\.\\d+)$/);
+      if (mapped && net.isIPv4(mapped[1])) return isPrivateAddress(mapped[1]);
+
+      return (
+        normalized === '::' ||
+        normalized === '::1' ||
+        normalized.startsWith('fc') ||
+        normalized.startsWith('fd') ||
+        normalized.startsWith('fe8') ||
+        normalized.startsWith('fe9') ||
+        normalized.startsWith('fea') ||
+        normalized.startsWith('feb')
+      );
     }
+
     return true;
   };
 
-  try {
-    const resolved = await dns.lookup(hostname, { all: true });
-    if (resolved.length === 0 || resolved.some((entry) => isPrivateAddress(entry.address))) {
-      return res.status(400).json({ error: 'Private or local network targets are not allowed.' });
+  const validateFetchTarget = async (candidate: string): Promise<URL> => {
+    let parsed: URL;
+    try {
+      parsed = new URL(candidate);
+    } catch {
+      throw new Error('Invalid URL.');
     }
-  } catch {
-    return res.status(400).json({ error: 'Target hostname could not be resolved.' });
+
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      throw new Error('Only HTTP(S) URLs are allowed.');
+    }
+
+    const host = parsed.hostname.toLowerCase().replace(/\\.$/, '');
+    if (
+      host === 'localhost' ||
+      host === 'localhost.localdomain' ||
+      host === 'ip6-localhost' ||
+      host === 'ip6-loopback' ||
+      host === 'metadata.google.internal' ||
+      host.endsWith('.localhost') ||
+      host.endsWith('.local')
+    ) {
+      throw new Error('Local or metadata targets are not allowed.');
+    }
+
+    if (net.isIP(host)) {
+      if (isPrivateAddress(host)) throw new Error('Private or local network targets are not allowed.');
+      return parsed;
+    }
+
+    const resolved = await dns.lookup(host, { all: true });
+    if (resolved.length === 0 || resolved.some((entry) => isPrivateAddress(entry.address))) {
+      throw new Error('Private or local network targets are not allowed.');
+    }
+
+    return parsed;
+  };
+
+  try {
+    targetUrl = await validateFetchTarget(url);
+  } catch (error) {
+    return res.status(400).json({
+      error: error instanceof Error ? error.message : 'Target hostname could not be validated.'
+    });
   }
 
   const startTime = Date.now();
