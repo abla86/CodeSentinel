@@ -79,29 +79,10 @@ export async function fetchRbacRoleDefinitions(): Promise<RbacRolesResponse> {
     success: true,
     databaseSource: 'Secure Database Model (Fallback Cache)',
     roles: Object.values(USER_ROLES),
-    preSeededAccounts: [
-      {
-        role: 'lead_engineer',
-        roleName: 'Lead Software Architect',
-        email: 'annebeth.andersen@gmail.com',
-        testPassword: 'SecureArchitect2026!',
-        description: 'Full administrativ tilgang og sikkerhetslag-kontroll'
-      },
-      {
-        role: 'security_auditor',
-        roleName: 'Security & Compliance Auditor',
-        email: 'auditor@codesentinel.io',
-        testPassword: 'ComplianceAudit2026!',
-        description: 'Revisjonstilgang til sikkerhetslag og sannhetsmotor'
-      },
-      {
-        role: 'guest_reviewer',
-        roleName: 'Portfolio Gjest / Rekrutterer',
-        email: 'guest@visitor.no',
-        testPassword: 'GuestVisitor2026!',
-        description: 'Standard skrivebeskyttet innsyn for rekrutterere'
-      }
-    ]
+    // Never expose fallback credentials from client code.
+    // Local/demo accounts are supplied server-side through
+    // CODE_SENTINEL_DEMO_USERS_JSON and are never returned here.
+    preSeededAccounts: [],
   };
 }
 
