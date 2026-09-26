@@ -736,13 +736,32 @@ app.post('/api/sentinel/inspect-url', async (req, res) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-    const response = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'CodeSentinel-Truth-Engine/2.0 (+https://github.com/abla86/codesentinel)',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+    let response: Response | null = null;
+    let currentUrl = targetUrl;
+
+    for (let redirectCount = 0; redirectCount <= 5; redirectCount += 1) {
+      response = await fetch(currentUrl, {
+        signal: controller.signal,
+        redirect: 'manual',
+        headers: {
+          'User-Agent': 'CodeSentinel-Truth-Engine/2.0 (+https://github.com/abla86/codesentinel)',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        }
+      });
+
+      if (![301, 302, 303, 307, 308].includes(response.status)) break;
+
+      const location = response.headers.get('location');
+      if (!location) break;
+
+      if (redirectCount === 5) {
+        throw new Error('Too many redirects.');
       }
-    });
+
+      currentUrl = await validateFetchTarget(new URL(location, currentUrl).toString());
+    }
+
+    if (!response) throw new Error('No response received.');
     clearTimeout(timeoutId);
 
     const latencyMs = Date.now() - startTime;
