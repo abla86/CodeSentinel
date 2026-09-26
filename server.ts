@@ -667,7 +667,7 @@ app.post('/api/sentinel/inspect-url', async (req, res) => {
 
     if (net.isIPv6(address)) {
       // Handle IPv4-mapped IPv6 addresses such as ::ffff:127.0.0.1.
-      const mapped = normalized.match(/^::ffff:(\\d+\\.\\d+\\.\\d+\\.\\d+)$/);
+      const mapped = normalized.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
       if (mapped && net.isIPv4(mapped[1])) return isPrivateAddress(mapped[1]);
 
       return (
@@ -697,7 +697,7 @@ app.post('/api/sentinel/inspect-url', async (req, res) => {
       throw new Error('Only HTTP(S) URLs are allowed.');
     }
 
-    const host = parsed.hostname.toLowerCase().replace(/\\.$/, '');
+    const host = parsed.hostname.toLowerCase().replace(/\.$/, '');
     if (
       host === 'localhost' ||
       host === 'localhost.localdomain' ||
