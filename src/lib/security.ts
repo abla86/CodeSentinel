@@ -798,7 +798,7 @@ $registry = Test-CodeSentinelSchema -Path $RegistryPath
 $hash = Test-RegistryIntegrity -Path $RegistryPath
 $snapshot = New-CodeSentinelSnapshot -RegistryPath $RegistryPath -Reason "Pre-run sanity snapshot" -Dir $SnapshotsDir
 
-Write-Host "[FULLFØRT] CodeSentinel Sikkerhetslag er operativt. Systemet er 100% beskyttet." -ForegroundColor Green
+Write-Host "[FULLFØRT] CodeSentinel-skriptet er kjørt. Dette bekrefter ikke fullstendig sikkerhet; kontroller resultatene og testene." -ForegroundColor Green
 `;
 }
 
