@@ -46,6 +46,10 @@ TypeScript check:
 npm run lint
 ```
 
+## Seed data boundary
+
+The initial registry contains seed records marked **pending verification**. They are not proof that a repository, deployment, feature, metric, or CI run exists. The in-code repository fixtures are synthetic test data; their invented names, stars, issue counts, timestamps, deployment details, and capability descriptions must never be presented as live GitHub evidence. Only data retrieved from the actual GitHub repository and checks run against the relevant commit may be shown as verified.
+
 ## Evidence and verification principle
 
 CodeSentinel should distinguish clearly between:
