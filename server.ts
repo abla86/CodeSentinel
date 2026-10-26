@@ -29,14 +29,32 @@ app.use(express.json({
 }));
 
 const authAttempts = new Map<string, { count: number; resetAt: number }>();
+const AUTH_RATE_WINDOW_MS = 15 * 60 * 1000;
+const AUTH_RATE_LIMIT_MAX_KEYS = 10_000;
+
 function authRateLimited(req: express.Request): boolean {
   const key = req.ip || req.socket.remoteAddress || "unknown";
   const now = Date.now();
-  const current = authAttempts.get(key);
-  if (!current || current.resetAt <= now) {
-    authAttempts.set(key, { count: 1, resetAt: now + 15 * 60 * 1000 });
+  let current = authAttempts.get(key);
+
+  if (current && current.resetAt <= now) {
+    authAttempts.delete(key);
+    current = undefined;
+  }
+
+  // Expire old keys and cap memory usage when requests arrive from many unique addresses.
+  if (!current && authAttempts.size >= AUTH_RATE_LIMIT_MAX_KEYS) {
+    for (const [address, attempt] of authAttempts) {
+      if (attempt.resetAt <= now) authAttempts.delete(address);
+    }
+    if (authAttempts.size >= AUTH_RATE_LIMIT_MAX_KEYS) return true;
+  }
+
+  if (!current) {
+    authAttempts.set(key, { count: 1, resetAt: now + AUTH_RATE_WINDOW_MS });
     return false;
   }
+
   current.count += 1;
   return current.count > 20;
 }
@@ -111,9 +129,21 @@ function verifySignedSessionToken(token: string): {
       return null;
     }
 
+    const parsedHeader = JSON.parse(Buffer.from(header, 'base64url').toString('utf-8'));
+    if (parsedHeader?.alg !== 'HS256' || parsedHeader?.typ !== 'JWT') return null;
+
     const payload = JSON.parse(Buffer.from(body, 'base64url').toString('utf-8'));
-    if (Date.now() > payload.exp) {
-      return null; // Expired token
+    const allowedRoles = ['lead_engineer', 'security_auditor', 'guest_reviewer'];
+    if (
+      !payload ||
+      typeof payload.userId !== 'string' ||
+      typeof payload.email !== 'string' ||
+      typeof payload.name !== 'string' ||
+      !allowedRoles.includes(payload.role) ||
+      !Number.isSafeInteger(payload.exp) ||
+      payload.exp <= Date.now()
+    ) {
+      return null;
     }
     return payload;
   } catch {
@@ -189,34 +219,24 @@ if (isProduction && HOST !== "127.0.0.1" && HOST !== "::1" && HOST !== "localhos
 }
 
 // Health Check & Autonomous System Diagnostics API
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',
     version: '2.4.0',
-    service: 'CodeSentinel Truth Engine & Security Layer',
+    service: 'CodeSentinel',
     timestamp: new Date().toISOString(),
-    uptimeSeconds: Math.floor(process.uptime()),
-    features: {
-      pbkdf2Auth: true,
-      hmacTokenSigning: true,
-      quarantineVaultProtection: true,
-      scopeGuardEnforced: true,
-      liveHtmlInspector: true,
-      githubProxy: true
-    }
+    uptimeSeconds: Math.floor(process.uptime())
   });
 });
 
-app.get('/api/sentinel/health', (req, res) => {
+// Health reports process availability only. Security controls and repository scope
+// must be verified by their own tests; do not report hard-coded "enforced" claims.
+app.get('/api/sentinel/health', (_req, res) => {
   res.json({
     success: true,
     status: 'healthy',
-    system: 'CodeSentinel Truth Engine',
-    securityPillarsEnforced: '12/12',
-    zeroDataLossVaultActive: true,
-    scopeProtection: 'ab-engineering/*',
-    blockedRepos: ['cross-device-sdk'],
-    serverClock: new Date().toISOString()
+    system: 'CodeSentinel',
+    timestamp: new Date().toISOString()
   });
 });
 
