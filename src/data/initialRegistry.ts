@@ -145,7 +145,7 @@ function makeRepoFixtures() {
       stars: 142,
       openIssues: 3,
       license: 'MIT (Proprietary Core)',
-      readmeContent: `# EvidenceFlow 🛡️\n\n**EvidenceFlow** er en produksjonsklar bevis- og revisjonskjedeplattform designet for kliniske og rettsmedisinske miljøer.\n\n## Kjerneegenskaper\n- Uforanderlig revisjonslogg med Merkle Tree hashing og kryptografisk bevis\n- Rollebasert tilgangskontroll (RBAC) tilpasset Normen og GDPR art. 9\n- Sanntids HL7/FHIR hendelseslytting og transformasjon\n- WebCrypto signering av bevispakker med sertifikatverifisering\n\n## Teknologistakk\n- **Runtime**: Node.js v22 LTS, TypeScript\n- **Database**: PostgreSQL 16 med Row-Level Security\n- **Krypto**: WebCrypto API & SHA-256 Merkle Verification Engine\n- **API**: GraphQL & REST endpoint proxy\n\n## Testdekning\n100% enhetstestet med vitest & Playwright E2E. Total dekning: 98.4%.`,
+      readmeContent: `# EvidenceFlow — synthetic demo fixture\n\nThis is generated sample content used to exercise CodeSentinel's registry UI. It is not evidence that a real repository or deployed product exists.\n\nAll capabilities below are unverified design ideas, not implemented or certified features.\n\n- Candidate idea: append-only audit events with integrity hashes\n- Candidate idea: role-based access control\n- Candidate idea: HL7/FHIR integration\n- Candidate idea: signed evidence exports\n\nNo test coverage, uptime, regulatory compliance, deployment, or production-readiness result has been measured for this fixture.`,
       packageJson: {
         name: 'evidence-flow',
         version: '2.4.0',
@@ -165,12 +165,8 @@ function makeRepoFixtures() {
         'HL7/FHIR hendelseslytter og datatransformasjon',
         'Kryptografisk signering av bevispakker'
       ],
-      deploymentUrl: 'https://evidenceflow.ab-engineering.internal',
       expectedHtmlTitle: 'EvidenceFlow – Sikker Klinisk Beviskjede & Revisjonslogg',
       actualHtmlTitle: 'EvidenceFlow – Sikker Klinisk Beviskjede & Revisjonslogg',
-      ciStatus: 'passed',
-      ciRunId: '33018256411',
-      ciCommitSha: 'bb67f18268e09bea741570763cdb92e6275490ee',
       isOwnWork: true
     },
     'vaktklar-core': {
@@ -201,12 +197,8 @@ function makeRepoFixtures() {
         'SMS- og Push-varsling med bekreftelseskvittering',
         'Integrert vaktbyttebørs med ledergodkjenning'
       ],
-      deploymentUrl: 'https://vaktklar.ab-engineering.internal',
       expectedHtmlTitle: 'Vaktklar – Beredskapsplanlegging & Vaktstyring',
       actualHtmlTitle: 'Vaktklar – Beredskapsplanlegging & Vaktstyring',
-      ciStatus: 'passed',
-      ciRunId: '33019842190',
-      ciCommitSha: '4f81c9a1024e12e1f4095627ab7519eec81203ca',
       isOwnWork: true
     },
     'cloudforge-engine': {
@@ -235,12 +227,8 @@ function makeRepoFixtures() {
         'Zero-trust nettverkssegmentering for mikrotjenester',
         'Drift-deteksjon og selvreparerende ressursgrafer'
       ],
-      deploymentUrl: 'https://cloudforge.dev',
       expectedHtmlTitle: 'CloudForge – Compliant Cloud Infrastructure Generator',
       actualHtmlTitle: 'CloudForge – Compliant Cloud Infrastructure Generator',
-      ciStatus: 'passed',
-      ciRunId: '33017641201',
-      ciCommitSha: '9a8d7123bc01ef8712956214ab8492048591efcb',
       isOwnWork: true
     },
     'healthtech-device-api': {
@@ -259,12 +247,8 @@ function makeRepoFixtures() {
         'Kompakt binær serialisering med ultralav latenstid (<5ms)',
         'Automatisk fallback til offline-buffer ved nettverksbrudd'
       ],
-      deploymentUrl: 'https://api.healthtech.internal/v1',
       expectedHtmlTitle: 'HealthTech Telemetry Gateway API Specification',
       actualHtmlTitle: 'HealthTech Telemetry Gateway API Specification',
-      ciStatus: 'passed',
-      ciRunId: '33014190823',
-      ciCommitSha: '7f91048bcae10492817495810294719284102948',
       isOwnWork: true
     },
     'healthtech-monitor': {
@@ -283,12 +267,8 @@ function makeRepoFixtures() {
         'Konfigurerbare alarmterskler med auditering av stilling',
         'Mørkemodus optimalisert for nattarbeid på intensivstuer'
       ],
-      deploymentUrl: 'https://monitor.healthtech.internal',
       expectedHtmlTitle: 'HealthTech Monitor – 60fps Real-Time Patient Analytics',
       actualHtmlTitle: 'HealthTech Monitor – 60fps Real-Time Patient Analytics',
-      ciStatus: 'passed',
-      ciRunId: '33015590123',
-      ciCommitSha: '8910427164910283749102847192038471029384',
       isOwnWork: true
     },
     'healthdata-quality-lab': {
@@ -307,12 +287,8 @@ function makeRepoFixtures() {
         'Automatisk generering av datakvalitetsrapporter i PDF/HTML',
         'Avviksdeteksjon i longitudinelle pasientforløp'
       ],
-      deploymentUrl: 'https://quality.healthdata.internal',
       expectedHtmlTitle: 'HealthData Quality Lab – FHIR Validation Benchmark',
       actualHtmlTitle: 'HealthData Quality Lab – FHIR Validation Benchmark',
-      ciStatus: 'passed',
-      ciRunId: '33011294819',
-      ciCommitSha: '1092837491029384710293847102938471029384',
       isOwnWork: true
     },
     'workforce-sql-engine': {
@@ -331,12 +307,8 @@ function makeRepoFixtures() {
         'Kompilert til WebAssembly for lynraske nettleseranalyser',
         'Eksport til Parquet, Arrow IPC og Excel'
       ],
-      deploymentUrl: 'https://workforce-engine.ab-engineering.internal',
       expectedHtmlTitle: 'Workforce SQL Engine – High Throughput Roster Queries',
       actualHtmlTitle: 'Workforce SQL Engine – High Throughput Roster Queries',
-      ciStatus: 'passed',
-      ciRunId: '33009948123',
-      ciCommitSha: '2093847102938471029384710293847102938471',
       isOwnWork: true
     },
     'shiftplan-optimizer': {
@@ -355,12 +327,8 @@ function makeRepoFixtures() {
         'Ønskemodul for ansattes preferanser og ferieplaner',
         'Visuell interaktiv Gantt-tidslinje for turnusredigering'
       ],
-      deploymentUrl: 'https://shiftplan.ab-engineering.internal',
       expectedHtmlTitle: 'ShiftPlan – Intelligent AML Schedule Optimizer',
       actualHtmlTitle: 'ShiftPlan – Intelligent AML Schedule Optimizer',
-      ciStatus: 'passed',
-      ciRunId: '33008129481',
-      ciCommitSha: '3094857192837491029384710293847102938471',
       isOwnWork: true
     },
     'lab-benchmarks': {
@@ -379,12 +347,8 @@ function makeRepoFixtures() {
         'CI/CD maler og CodeSentinel valideringsskript',
         'Interaktive arkitekturdiagrammer og referanseimplementasjoner'
       ],
-      deploymentUrl: 'https://lab.ab-engineering.internal',
       expectedHtmlTitle: 'AB Engineering Lab – Architecture & WASM Benchmarks',
       actualHtmlTitle: 'AB Engineering Lab – Architecture & WASM Benchmarks',
-      ciStatus: 'passed',
-      ciRunId: '33006491823',
-      ciCommitSha: '4095867192837491029384710293847102938471',
       isOwnWork: true
     },
     'external-frameworks/cross-device-sdk': {
@@ -418,32 +382,16 @@ function makeRepoFixtures() {
   return fullMap;
 }
 
+// Every value in this map is synthetic test data, not live GitHub metadata. Never use it as evidence of ownership, stars, CI, deployment, uptime, coverage, or compliance.
 export const SIMULATED_GITHUB_REPOSITORIES: Record<string, GitHubRepoFixture> = makeRepoFixtures();
 
 export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
   {
-    id: 'audit-001',
-    timestamp: '2026-08-26T12:00:00Z',
-    actor: 'CodeSentinel Automated Runner',
-    action: 'AUTONOMOUS_SWEEP',
-    details: 'Full verification sweep completed for all 9 registered projects against abla86 GitHub truth source.',
-    status: 'success'
-  },
-  {
-    id: 'audit-002',
-    timestamp: '2026-08-26T12:00:05Z',
-    actor: 'CodeSentinel Rule #CS-09',
-    action: 'SECURITY_BLOCKED',
-    projectId: 'proj-cross-device-sdk',
-    details: 'ATTRIBUTION GUARD TRIGGERED: Blocked external repository external-frameworks/cross-device-sdk from being claimed as personal engineering work.',
-    status: 'blocked'
-  },
-  {
-    id: 'audit-003',
-    timestamp: '2026-08-26T12:01:00Z',
-    actor: 'System Admin (Annebeth)',
-    action: 'REGISTRY_UPDATED',
-    details: 'Registry integrity check passed. Grounding lock enabled: Portfolio content strictly synchronized with GitHub abla86 kilder.',
-    status: 'success'
+    id: 'audit-demo-seed',
+    timestamp: '2026-01-01T00:00:00Z',
+    actor: 'CodeSentinel demo fixture',
+    action: 'VERIFICATION_ARCHIVED',
+    details: 'Synthetic sample log only. No GitHub verification sweep or live repository check was performed.',
+    status: 'warning'
   }
 ];
