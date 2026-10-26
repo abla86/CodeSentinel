@@ -147,18 +147,27 @@ export function runCodeSentinelVerification(
     };
   }
 
-  // Live GitHub v3 API is confirmed!
+  const isSyntheticFixture = repoOverride.isSyntheticFixture === true;
   const rateLimitMsg = apiDiagnostic?.rateLimitRemaining !== undefined ? ` [RateLimit: ${apiDiagnostic.rateLimitRemaining} gjenstående]` : '';
   const latencyMsg = apiDiagnostic?.latencyMs ? ` [${apiDiagnostic.latencyMs}ms]` : '';
+  const lastCommitLabel = repoOverride.lastCommitDate
+    ? new Date(repoOverride.lastCommitDate).toLocaleDateString('no-NO')
+    : 'ikke oppgitt';
+  const starsLabel = typeof repoOverride.stars === 'number' ? String(repoOverride.stars) : 'ikke oppgitt';
+  const licenseLabel = repoOverride.license || 'ikke verifisert';
 
   checks.push({
     id: 'cs-01',
-    title: 'GitHub v3 REST API Tilgjengelighet & Sannhetskilde',
+    title: isSyntheticFixture ? 'Syntetiske testdata — ikke live GitHub-verifisering' : 'GitHub v3 REST API Tilgjengelighet & Sannhetskilde',
     ruleCode: 'CS-01',
-    description: 'Verifisert direkte tilkobling mot GitHub v3 REST API metadata.',
+    description: isSyntheticFixture
+      ? 'Dette resultatet kommer fra en syntetisk fixture. Det beviser ikke tilkobling eller metadata fra GitHub.'
+      : 'Metadata kan bare regnes som live-verifisert når de kommer fra et vellykket GitHub API-kall.',
     severity: 'info',
-    status: 'passed',
-    details: `🟢 Live GitHub v3 API Tilkoblet (${repoOverride.owner}/${repoOverride.repoName})${latencyMsg}${rateLimitMsg} | Siste commit: ${new Date(repoOverride.lastCommitDate).toLocaleDateString('no-NO')}, ${repoOverride.stars} ⭐, Lisens: ${repoOverride.license}`
+    status: isSyntheticFixture ? 'warning' : 'passed',
+    details: isSyntheticFixture
+      ? 'Syntetiske testdata: ingen live API-verifisering, siste commit, stjerner eller lisens er bekreftet.'
+      : `GitHub-metadata for ${repoOverride.owner}/${repoOverride.repoName}${latencyMsg}${rateLimitMsg} | Siste commit: ${lastCommitLabel}, stjerner: ${starsLabel}, lisens: ${licenseLabel}`
   });
 
   // RULE CS-09: Explicit Attribution Guard (#CS-09 - Anti-Third-Party Attribution)
