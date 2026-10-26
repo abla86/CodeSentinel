@@ -372,11 +372,30 @@ function makeRepoFixtures() {
 
   const fullMap: Record<string, GitHubRepoFixture> = {};
   for (const [k, v] of Object.entries(base)) {
+    // Strip invented repository metrics and status fields before any fixture can be consumed.
+    const {
+      lastCommitDate: _lastCommitDate,
+      stars: _stars,
+      openIssues: _openIssues,
+      license: _license,
+      deploymentUrl: _deploymentUrl,
+      expectedHtmlTitle: _expectedHtmlTitle,
+      actualHtmlTitle: _actualHtmlTitle,
+      ciRunId: _ciRunId,
+      ciCommitSha: _ciCommitSha,
+      ciStatus: _ciStatus,
+      ...safeFixture
+    } = v;
+    const synthetic = {
+      ...safeFixture,
+      isSyntheticFixture: true,
+      readmeContent: `SYNTHETIC DEMO FIXTURE — not live GitHub metadata, verified implementation, deployment, or CI evidence.\n\n${v.readmeContent}`
+    };
     if (k.includes('/')) {
-      fullMap[k] = v;
+      fullMap[k] = synthetic;
     } else {
-      fullMap[`abla86/${k}`] = { ...v, owner: 'abla86' };
-      fullMap[`ab-engineering/${k}`] = { ...v, owner: 'ab-engineering' };
+      fullMap[`abla86/${k}`] = { ...synthetic, owner: 'abla86' };
+      fullMap[`ab-engineering/${k}`] = { ...synthetic, owner: 'ab-engineering' };
     }
   }
   return fullMap;
