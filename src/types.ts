@@ -6,10 +6,10 @@ export interface GitHubRepoFixture {
   repoName: string;
   owner: string;
   defaultBranch: string;
-  lastCommitDate: string;
-  stars: number;
-  openIssues: number;
-  license: string;
+  lastCommitDate?: string;
+  stars?: number;
+  openIssues?: number;
+  license?: string;
   readmeContent: string;
   packageJson?: {
     name: string;
@@ -27,6 +27,7 @@ export interface GitHubRepoFixture {
   ciCommitSha?: string;
   ciStatus?: 'passed' | 'failed' | 'running';
   isOwnWork: boolean;
+  isSyntheticFixture?: boolean;
   attributionNote?: string;
 }
 
