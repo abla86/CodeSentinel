@@ -2,287 +2,135 @@ import { RegistryProject, GitHubRepoFixture, AuditLogEntry } from '../types';
 
 export const INITIAL_REGISTRY_PROJECTS: RegistryProject[] = [
   {
-    id: 'proj-evidenceflow',
-    name: 'EvidenceFlow',
-    shortDescription: 'Sikker revisjons- og beviskjede for klinisk og operasjonell beslutningsstøtte med kryptografisk sporbarhet.',
+    id: 'proj-complete-evidence-appraisal-tool',
+    name: 'Complete Evidence Appraisal Tool',
+    shortDescription: 'Research-support prototype for document parsing, study classification, evidence traceability, and structured critical appraisal.',
     tier: 'tier-1',
-    githubRepo: 'abla86/evidence-flow',
+    githubRepo: 'abla86/complete-evidence-appraisal-tool',
+    category: 'Data & Analytics',
+    targetAudience: 'Students, researchers, and evidence-review teams',
+    claimedTechnologies: ['TypeScript', 'React', 'Express', 'Vite', 'Google GenAI'],
+    claimedFeatures: ['Document parsing and candidate evidence extraction', 'Structured appraisal workflows', 'Source and methodology references', 'Human verification required for AI suggestions'],
+    status: 'pending_verification',
+    flagReasons: ['Seeded repository entry; verify current GitHub source and CI before treating any capability as confirmed.']
+  },
+  {
+    id: 'proj-workforce-competence-management',
+    name: 'Workforce & Competence Management',
+    shortDescription: 'Portfolio prototype for competence records, shift planning, staffing coverage, and decision support.',
+    tier: 'tier-1',
+    githubRepo: 'abla86/workforce-competence-management',
     category: 'Healthcare',
-    targetAudience: 'Spesialisthelsetjenesten og rettsmedisinske fagmiljøer',
-    claimedTechnologies: ['TypeScript', 'Node.js', 'PostgreSQL', 'WebCrypto', 'Docker', 'GraphQL'],
-    claimedFeatures: [
-      'Uforanderlig revisjonslogg med Merkle Tree hashing',
-      'Rollebasert tilgangskontroll iht. Normen og GDPR',
-      'HL7/FHIR hendelseslytter og datatransformasjon',
-      'Kryptografisk signering av bevispakker'
-    ],
-    deploymentUrl: 'https://evidenceflow.ab-engineering.internal',
-    expectedHtmlTitle: 'EvidenceFlow – Sikker Klinisk Beviskjede & Revisjonslogg',
-    actualHtmlTitle: 'EvidenceFlow – Sikker Klinisk Beviskjede & Revisjonslogg',
-    ciStatus: 'passed',
-    ciRunId: '33018256411',
-    ciCommitSha: 'bb67f18268e09bea741570763cdb92e6275490ee',
-    status: 'verified',
-    lastVerifiedAt: '2026-08-26T12:00:00Z',
-    metrics: {
-      testCoverage: '98.4%',
-      uptime: '99.99%',
-      performanceScore: 99
-    }
+    targetAudience: 'Workforce planners and team leads',
+    claimedTechnologies: ['React', 'TypeScript', 'ASP.NET Core', 'Entity Framework Core', 'SQL Server', 'Docker'],
+    claimedFeatures: ['Competence and shift records', 'Coverage and availability checks', 'Staffing decision support', 'Demo-data boundary and production-readiness limitations'],
+    status: 'pending_verification',
+    flagReasons: ['Seeded repository entry; verify current GitHub source and CI before treating any capability as confirmed.']
   },
   {
-    id: 'proj-vaktklar',
-    name: 'Vaktklar',
-    shortDescription: 'Beredskaps- og vaktplanleggingsplattform med sanntids eskalering og incident response.',
+    id: 'proj-azure-kubernetes-showcase',
+    name: 'Azure Kubernetes Showcase',
+    shortDescription: 'Engineering showcase for container, Kubernetes, infrastructure, CI/CD, and security workflows.',
     tier: 'tier-1',
-    githubRepo: 'abla86/vaktklar-core',
-    category: 'Security & Operations',
-    targetAudience: 'Sykehusledelse, legevakt og tekniske beredskapslag',
-    claimedTechnologies: ['React', 'TypeScript', 'Go', 'Redis', 'WebSockets', 'Tailwind CSS'],
-    claimedFeatures: [
-      'Automatisert vakteskalering ved akutte hendelser',
-      'Sanntids statuskart for tilgjengelig personell',
-      'SMS- og Push-varsling med bekreftelseskvittering',
-      'Integrert vaktbyttebørs med ledergodkjenning'
-    ],
-    deploymentUrl: 'https://vaktklar.ab-engineering.internal',
-    expectedHtmlTitle: 'Vaktklar – Beredskapsplanlegging & Vaktstyring',
-    actualHtmlTitle: 'Vaktklar – Beredskapsplanlegging & Vaktstyring',
-    ciStatus: 'passed',
-    ciRunId: '33019842190',
-    ciCommitSha: '4f81c9a1024e12e1f4095627ab7519eec81203ca',
-    status: 'verified',
-    lastVerifiedAt: '2026-08-26T12:10:00Z',
-    metrics: {
-      testCoverage: '95.1%',
-      uptime: '99.95%',
-      performanceScore: 97
-    }
-  },
-  {
-    id: 'proj-cloudforge',
-    name: 'CloudForge',
-    shortDescription: 'Infrastruktur-som-kode generator og orkestreringsmotor for helsesikker sky-arkitektur.',
-    tier: 'tier-1',
-    githubRepo: 'abla86/cloudforge-engine',
+    githubRepo: 'abla86/azure-kubernetes-showcase',
     category: 'Infrastructure',
-    targetAudience: 'Plattformteam og DevOps-ingeniører i regulerte sektorer',
-    claimedTechnologies: ['TypeScript', 'Terraform', 'Kubernetes', 'Python', 'AWS CDK', 'GitHub Actions'],
-    claimedFeatures: [
-      'Automatisk overholdelse av CIS Benchmarks og ISO 27001',
-      'Multi-cluster Kubernetes provisjonering på under 4 minutter',
-      'Zero-trust nettverkssegmentering for mikrotjenester',
-      'Drift-deteksjon og selvreparerende ressursgrafer'
-    ],
-    deploymentUrl: 'https://cloudforge.dev',
-    expectedHtmlTitle: 'CloudForge – Compliant Cloud Infrastructure Generator',
-    actualHtmlTitle: 'CloudForge – Compliant Cloud Infrastructure Generator',
-    ciStatus: 'passed',
-    ciRunId: '33017641201',
-    ciCommitSha: '9a8d7123bc01ef8712956214ab8492048591efcb',
-    status: 'verified',
-    lastVerifiedAt: '2026-08-26T12:15:00Z',
-    metrics: {
-      testCoverage: '92.8%',
-      uptime: '99.98%',
-      performanceScore: 95
-    }
+    targetAudience: 'Developers, platform engineers, and DevOps teams',
+    claimedTechnologies: ['Kubernetes', 'Docker', 'Azure', 'Terraform', 'GitHub Actions'],
+    claimedFeatures: ['Infrastructure and deployment examples', 'Build and security workflows', 'Repository governance and validation'],
+    status: 'pending_verification',
+    flagReasons: ['Seeded repository entry; verify current GitHub source and CI before treating any capability as confirmed.']
   },
   {
     id: 'proj-healthtech-device-api',
     name: 'HealthTech Device API',
-    shortDescription: 'ISO 13485-kompatibelt IoT gateway-API for sikker telemetri og fysiologiske sensordata.',
-    tier: 'tier-2',
-    githubRepo: 'abla86/healthtech-device-api',
+    shortDescription: 'Healthcare-technology demonstration API for simulated device monitoring and synthetic DICOM handling.',
+    tier: 'tier-1',
+    githubRepo: 'abla86/HealthTechDeviceApi',
     category: 'Healthcare',
-    targetAudience: 'Medisintekniske produsenter og sykehusintegratorer',
-    claimedTechnologies: ['Rust', 'MQTT', 'gRPC', 'Protocol Buffers', 'TimescaleDB', 'Docker'],
-    claimedFeatures: [
-      'Støtte for Bluetooth LE og Wi-Fi telemetristrømmer',
-      'Maskinvareakselerert TLS 1.3 med mTLS sertifikater',
-      'Kompakt binær serialisering med ultralav latenstid (<5ms)',
-      'Automatisk fallback til offline-buffer ved nettverksbrudd'
-    ],
-    deploymentUrl: 'https://api.healthtech.internal/v1',
-    expectedHtmlTitle: 'HealthTech Telemetry Gateway API Specification',
-    actualHtmlTitle: 'HealthTech Telemetry Gateway API Specification',
-    ciStatus: 'passed',
-    ciRunId: '33014190823',
-    ciCommitSha: '7f91048bcae10492817495810294719284102948',
-    status: 'verified',
-    lastVerifiedAt: '2026-08-26T12:20:00Z',
-    metrics: {
-      testCoverage: '96.7%',
-      uptime: '99.99%',
-      performanceScore: 98
-    }
+    targetAudience: 'Healthcare software engineers and API developers',
+    claimedTechnologies: ['C#', '.NET', 'ASP.NET Core', 'SQLite', 'xUnit', 'Docker'],
+    claimedFeatures: ['Device CRUD and validation', 'Synthetic DICOM inspection', 'Cryptography demonstrations', 'API-key protection outside Development'],
+    status: 'pending_verification',
+    flagReasons: ['Demonstration only; no clinical validation or production medical-device certification is claimed.']
   },
   {
-    id: 'proj-healthtech-monitor',
-    name: 'HealthTech Monitor',
-    shortDescription: 'Sanntids pasientovervåking og anomalideteksjon med tidsserieanalyse og varslingsruting.',
+    id: 'proj-seniorcare-guardian',
+    name: 'SeniorCare Guardian',
+    shortDescription: 'Healthcare technology UI prototype using simulated care data and demonstration workflows.',
     tier: 'tier-2',
-    githubRepo: 'abla86/healthtech-monitor',
+    githubRepo: 'abla86/SeniorCare-Guardian',
     category: 'Healthcare',
-    targetAudience: 'Intensivavdelinger, anestesipersonell og kliniske overvåkningsrom',
-    claimedTechnologies: ['React', 'TypeScript', 'D3.js', 'WebSockets', 'Python', 'FastAPI'],
-    claimedFeatures: [
-      'Visualisering av EKG, SpO2 og invasivt blodtrykk ved 60 fps',
-      'Statistisk avviksdeteksjon for tidlig varsel om forverring',
-      'Konfigurerbare alarmterskler med auditering av stilling',
-      'Mørkemodus optimalisert for nattarbeid på intensivstuer'
-    ],
-    deploymentUrl: 'https://monitor.healthtech.internal',
-    expectedHtmlTitle: 'HealthTech Monitor – 60fps Real-Time Patient Analytics',
-    actualHtmlTitle: 'HealthTech Monitor – 60fps Real-Time Patient Analytics',
-    ciStatus: 'passed',
-    ciRunId: '33015590123',
-    ciCommitSha: '8910427164910283749102847192038471029384',
-    status: 'verified',
-    lastVerifiedAt: '2026-08-26T12:25:00Z',
-    metrics: {
-      testCoverage: '91.3%',
-      uptime: '99.90%',
-      performanceScore: 94
-    }
+    targetAudience: 'Developers exploring care-workflow prototypes',
+    claimedTechnologies: ['React', 'TypeScript', 'Vite'],
+    claimedFeatures: ['Simulated care and alert screens', 'Demo consent and audit views', 'No verified HelseID, hardware encryption, clinical monitoring, or GDPR compliance'],
+    status: 'pending_verification',
+    flagReasons: ['UI demonstration only; security and clinical claims must not be inferred from the interface.']
   },
   {
-    id: 'proj-healthdata-quality-lab',
-    name: 'HealthData Quality Lab',
-    shortDescription: 'Automatisert testbenk og valideringsmotor for helsedata, syntetiske datasett og FHIR-konformitet.',
+    id: 'proj-codesentinel',
+    name: 'CodeSentinel',
+    shortDescription: 'GitHub-grounded portfolio registry and verification-oriented project dashboard.',
     tier: 'tier-2',
-    githubRepo: 'abla86/healthdata-quality-lab',
-    category: 'Data & Analytics',
-    targetAudience: 'Data scientists, helseregistre og analyseplattformer',
-    claimedTechnologies: ['Python', 'Pandas', 'PySpark', 'Parquet', 'FastAPI', 'DuckDB'],
-    claimedFeatures: [
-      'Validering av 150+ kliniske regler og syntakskontroller',
-      'Syntetisk pasientdata-generator med bevart korrelasjon',
-      'Automatisk generering av datakvalitetsrapporter i PDF/HTML',
-      'Avviksdeteksjon i longitudinelle pasientforløp'
-    ],
-    deploymentUrl: 'https://quality.healthdata.internal',
-    expectedHtmlTitle: 'HealthData Quality Lab – FHIR Validation Benchmark',
-    actualHtmlTitle: 'HealthData Quality Lab – FHIR Validation Benchmark',
-    ciStatus: 'passed',
-    ciRunId: '33011294819',
-    ciCommitSha: '1092837491029384710293847102938471029384',
-    status: 'verified',
-    lastVerifiedAt: '2026-08-26T12:30:00Z',
-    metrics: {
-      testCoverage: '94.0%',
-      uptime: '99.92%',
-      performanceScore: 96
-    }
-  },
-  {
-    id: 'proj-workforce-sql-engine',
-    name: 'Workforce SQL Engine',
-    shortDescription: 'Distribuert spørremotor for turnusdata, bemanningsprognoser og timelister med høy gjennomstrømming.',
-    tier: 'tier-2',
-    githubRepo: 'abla86/workforce-sql-engine',
-    category: 'Data & Analytics',
-    targetAudience: 'HR-analytikere, bemanningsplanleggere og økonomiavdelinger',
-    claimedTechnologies: ['Rust', 'Apache Arrow', 'SQL', 'PostgreSQL', 'DuckDB', 'WebAssembly'],
-    claimedFeatures: [
-      'Vektorisert SQL-utførelse over millioner av vaktregistreringer',
-      'Innebygde vindusfunksjoner for hviletid- og overtidskontroll',
-      'Kompilert til WebAssembly for lynraske nettleseranalyser',
-      'Eksport til Parquet, Arrow IPC og Excel'
-    ],
-    deploymentUrl: 'https://workforce-engine.ab-engineering.internal',
-    expectedHtmlTitle: 'Workforce SQL Engine – High Throughput Roster Queries',
-    actualHtmlTitle: 'Workforce SQL Engine – High Throughput Roster Queries',
-    ciStatus: 'passed',
-    ciRunId: '33009948123',
-    ciCommitSha: '2093847102938471029384710293847102938471',
-    status: 'verified',
-    lastVerifiedAt: '2026-08-26T12:35:00Z',
-    metrics: {
-      testCoverage: '93.5%',
-      uptime: '99.96%',
-      performanceScore: 97
-    }
-  },
-  {
-    id: 'proj-shiftplan',
-    name: 'ShiftPlan',
-    shortDescription: 'Algoritmisk bemannings- og turnusoptimalisator som balanserer kompetansekrav og arbeidsmiljølov.',
-    tier: 'tier-3',
-    githubRepo: 'abla86/shiftplan-optimizer',
+    githubRepo: 'abla86/CodeSentinel',
     category: 'Security & Operations',
-    targetAudience: 'Avdelingssykepleiere, turnusansvarlige og seksjonsledere',
-    claimedTechnologies: ['TypeScript', 'React', 'Z3 Solver', 'Node.js', 'Tailwind CSS'],
-    claimedFeatures: [
-      'Betingelsesbasert turnusløser med matematisk optimalisering',
-      'Støtte for AML-krav (hviletid, helgefrekvens, arbeidsbelastning)',
-      'Ønskemodul for ansattes preferanser og ferieplaner',
-      'Visuell interaktiv Gantt-tidslinje for turnusredigering'
-    ],
-    deploymentUrl: 'https://shiftplan.ab-engineering.internal',
-    expectedHtmlTitle: 'ShiftPlan – Intelligent AML Schedule Optimizer',
-    actualHtmlTitle: 'ShiftPlan – Intelligent AML Schedule Optimizer',
-    ciStatus: 'passed',
-    ciRunId: '33008129481',
-    ciCommitSha: '3094857192837491029384710293847102938471',
-    status: 'verified',
-    lastVerifiedAt: '2026-08-26T12:40:00Z',
-    metrics: {
-      testCoverage: '89.2%',
-      uptime: '99.85%',
-      performanceScore: 92
-    }
+    targetAudience: 'Developers and maintainers reviewing repository evidence',
+    claimedTechnologies: ['React', 'TypeScript', 'Node.js', 'Express', 'Vite'],
+    claimedFeatures: ['Repository registry and project details', 'Verification and audit-log views', 'Distinguishes source evidence from AI-generated summaries'],
+    status: 'pending_verification',
+    flagReasons: ['Registry entries are not proof of implementation; verify each repository and check before marking it verified.']
+  },
+  {
+    id: 'proj-book-forge',
+    name: 'BookForge',
+    shortDescription: 'AI-assisted book and content-generation application prototype.',
+    tier: 'tier-2',
+    githubRepo: 'abla86/book-forge',
+    category: 'Developer Tools',
+    targetAudience: 'Writers and developers experimenting with AI-assisted content workflows',
+    claimedTechnologies: ['TypeScript', 'React', 'Express', 'Vite', 'Google GenAI'],
+    claimedFeatures: ['Content-generation workflows', 'Export and editing features', 'AI-generated claims require source and human review'],
+    status: 'pending_verification',
+    flagReasons: ['Seeded repository entry; verify current GitHub source and CI before treating any capability as confirmed.']
+  },
+  {
+    id: 'proj-agenttrace',
+    name: 'AgentTrace',
+    shortDescription: 'AI-agent tracing, provenance, policy evaluation, and bounded simulation toolkit.',
+    tier: 'tier-2',
+    githubRepo: 'abla86/agenttrace',
+    category: 'Security & Operations',
+    targetAudience: 'AI-agent developers and security researchers',
+    claimedTechnologies: ['Python', 'pytest', 'MCP', 'Google ADK integration example'],
+    claimedFeatures: ['Traceable state and provenance labels', 'Policy evaluation', 'Bounded inert simulations', 'Does not provide a universal security guarantee'],
+    status: 'pending_verification',
+    flagReasons: ['Seeded repository entry; verify current GitHub source and CI before treating any capability as confirmed.']
   },
   {
     id: 'proj-ab-engineering-lab',
     name: 'AB Engineering Lab',
-    shortDescription: 'Eksperimentelt forsknings- og utviklingslaboratorium for nye arkitekturer, verktøy og prototyper.',
+    shortDescription: 'Engineering laboratory and portfolio repository for prototypes, tools, and reference implementations.',
     tier: 'tier-3',
-    githubRepo: 'abla86/lab-benchmarks',
+    githubRepo: 'abla86/AB-Engineering-Lab',
     category: 'Developer Tools',
-    targetAudience: 'Utviklere og arkitekter som utforsker banebrytende mønstre',
-    claimedTechnologies: ['TypeScript', 'Rust', 'WebAssembly', 'Bun', 'Vite', 'Docker'],
-    claimedFeatures: [
-      'Micro-benchmarking av JSON vs Protobuf vs FlatBuffers',
-      'Eksperimentelle web-workers for CPU-intensive helseberegninger',
-      'CI/CD maler og CodeSentinel valideringsskript',
-      'Interaktive arkitekturdiagrammer og referanseimplementasjoner'
-    ],
-    deploymentUrl: 'https://lab.ab-engineering.internal',
-    expectedHtmlTitle: 'AB Engineering Lab – Architecture & WASM Benchmarks',
-    actualHtmlTitle: 'AB Engineering Lab – Architecture & WASM Benchmarks',
-    ciStatus: 'passed',
-    ciRunId: '33006491823',
-    ciCommitSha: '4095867192837491029384710293847102938471',
-    status: 'verified',
-    lastVerifiedAt: '2026-08-26T12:45:00Z',
-    metrics: {
-      testCoverage: '88.0%',
-      uptime: '99.80%',
-      performanceScore: 90
-    }
+    targetAudience: 'Developers and software architects',
+    claimedTechnologies: ['TypeScript', 'Python', 'Rust', 'Docker', 'GitHub Actions'],
+    claimedFeatures: ['Engineering experiments', 'Reference implementations', 'CI and security workflows'],
+    status: 'pending_verification',
+    flagReasons: ['Seeded repository entry; verify current GitHub source and CI before treating any capability as confirmed.']
   },
   {
     id: 'proj-cross-device-sdk',
     name: 'cross-device-sdk',
-    shortDescription: 'Eksternt rammeverk og tredjeparts SDK for kryssenhetskommunikasjon.',
+    shortDescription: 'External third-party fixture retained to test attribution safeguards.',
     tier: 'tier-3',
     githubRepo: 'external-frameworks/cross-device-sdk',
     category: 'Developer Tools',
-    targetAudience: 'Eksternt åpent kildekode-prosjekt (IKKE eget arbeid)',
+    targetAudience: 'External third-party project fixture',
     claimedTechnologies: ['C++', 'Java', 'Android SDK', 'Bluetooth LE'],
-    claimedFeatures: [
-      'Kryssenhets protokollsynkronisering',
-      'Peer-to-peer overføring av strømmer'
-    ],
+    claimedFeatures: ['Example third-party capabilities are unverified fixture data'],
     isDisallowedAsOwnWork: true,
-    forbiddenReason: '⚠️ SIKKERHETS- OG ETISK SPERRE (CodeSentinel Regel #CS-09): Dette prosjektet er et eksternt/tredjeparts rammeverk og er EKSPLISITT FORBUDT å presentere som eget arbeid i portfolioen. Prosjektet blokkeres automatisk av sannhetsmotoren.',
-    status: 'blocked_disallowed',
-    lastVerifiedAt: '2026-08-26T12:50:00Z',
-    flagReasons: [
-      'Kritisk regelbrudd: Tredjeparts åndsverk registrert under eget navn',
-      'CodeSentinel sikkerhetslås aktivert: Blokkeres fra offentlig portfolio'
-    ]
+    forbiddenReason: 'External/third-party fixture: do not present as own work without verified ownership and attribution.',
+    status: 'blocked_disallowed'
   }
 ];
 
